@@ -1,10 +1,10 @@
 // Google Sheets API Entegrasyonu
 class GoogleSheetsAPI {
     constructor() {
-        this.apiKey = 'YOUR_API_KEY_HERE'; // Google Cloud Console'dan alacağınız API anahtarı
-        this.spreadsheetId = 'YOUR_SPREADSHEET_ID_HERE'; // Google Sheets ID
-        this.baseURL = 'https://sheets.googleapis.com/v4/spreadsheets';
-    }
+    this.apiKey = 'AIzaSyCcF6wYrhr2i41qaBti9Rgaas1a5XcWnBk'; // Senin API key'in
+    this.spreadsheetId = '1ulhuSPzsICrbNX0jAIqQcFeWcQBXifSAXWwJzfmmyCc'; // Senin Sheets ID'n
+    this.baseURL = 'https://sheets.googleapis.com/v4/spreadsheets';
+}
 
     // API anahtarını ayarla
     setApiKey(apiKey) {
