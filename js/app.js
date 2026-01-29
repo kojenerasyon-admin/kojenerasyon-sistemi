@@ -132,6 +132,8 @@ class KojenerasyonApp {
 
     async loadDashboardData() {
         try {
+            console.log('📊 Dashboard verileri yükleniyor...');
+            
             // Google Sheets'ten motor verilerini çek
             const sheetData = await googleSheets.getMotorData();
             
@@ -177,14 +179,94 @@ class KojenerasyonApp {
                 this.updateSteamCards(mockSteamData);
             }
             
+            // LocalStorage'dan saatlik verileri oku ve dashboard'a yansıt
+            this.loadHourlyDataToDashboard();
+            
             // Admin ise düzenleme butonlarını göster
             this.checkAdminStatus();
             
+            console.log('✅ Dashboard verileri yüklendi');
         } catch (error) {
             console.error('Dashboard verileri yüklenemedi:', error);
-            this.showError('Dashboard verileri yüklenemedi');
-            // Hata durumunda mock verileri kullan
-            this.loadMockData();
+            // Hata durumunda LocalStorage verilerini göster
+            this.loadHourlyDataToDashboard();
+        }
+    }
+
+    // LocalStorage'daki saatlik verilerini dashboard'a yükle
+    loadHourlyDataToDashboard() {
+        try {
+            const hourlyData = JSON.parse(localStorage.getItem('hourlyData') || '[]');
+            console.log('📈 LocalStorage saatlik verileri:', hourlyData.length, 'kayıt');
+            
+            if (hourlyData.length > 0) {
+                // Bugünün verilerini hesapla
+                const today = new Date().toISOString().split('T')[0];
+                const todayData = hourlyData.filter(data => data.date === today);
+                
+                // Toplam verileri hesapla
+                const totalActivePower = hourlyData.reduce((sum, data) => sum + (data.totalActivePower || 0), 0);
+                const totalReactivePower = hourlyData.reduce((sum, data) => sum + (data.totalReactivePower || 0), 0);
+                
+                // Dashboard kartlarını güncelle
+                this.updateEnergyCards({
+                    totalActivePower: totalActivePower.toFixed(2),
+                    totalReactivePower: totalReactivePower.toFixed(2),
+                    todayActivePower: todayData.reduce((sum, data) => sum + (data.totalActivePower || 0), 0).toFixed(2),
+                    recordCount: hourlyData.length,
+                    lastUpdate: hourlyData.length > 0 ? hourlyData[hourlyData.length - 1].timestamp : 'Henüz kayıt yok'
+                });
+                
+                console.log('✅ Enerji kartları güncellendi:', {
+                    totalActivePower: totalActivePower.toFixed(2),
+                    totalReactivePower: totalReactivePower.toFixed(2),
+                    todayRecords: todayData.length
+                });
+            } else {
+                console.log('📝 Henüz kayıtlı veri yok');
+            }
+        } catch (error) {
+            console.error('LocalStorage verileri okunamadı:', error);
+        }
+    }
+
+    // Enerji kartlarını güncelle
+    updateEnergyCards(data) {
+        try {
+            // Toplam Aktif Güç kartı
+            const totalActiveElement = document.getElementById('total-active-power');
+            if (totalActiveElement) {
+                totalActiveElement.textContent = `${data.totalActivePower} MWh`;
+            }
+            
+            // Toplam Reaktif Güç kartı
+            const totalReactiveElement = document.getElementById('total-reactive-power');
+            if (totalReactiveElement) {
+                totalReactiveElement.textContent = `${data.totalReactivePower} kVAh`;
+            }
+            
+            // Bugünkü üretim kartı
+            const todayProductionElement = document.getElementById('today-production');
+            if (todayProductionElement) {
+                todayProductionElement.textContent = `${data.todayActivePower} MWh`;
+            }
+            
+            // Kayıt sayısı kartı
+            const recordCountElement = document.getElementById('record-count');
+            if (recordCountElement) {
+                recordCountElement.textContent = data.recordCount;
+            }
+            
+            // Son güncelleme kartı
+            const lastUpdateElement = document.getElementById('last-update');
+            if (lastUpdateElement) {
+                const updateDate = new Date(data.lastUpdate);
+                lastUpdateElement.textContent = updateDate.toLocaleString('tr-TR');
+            }
+            
+            console.log('✅ Enerji kartları güncellendi');
+        } catch (error) {
+            console.error('Enerji kartları güncellenemedi:', error);
         }
     }
 
@@ -222,7 +304,7 @@ class KojenerasyonApp {
         const isAdmin = userData.role === 'ADMIN' || userData.role === 'admin';
         
         // Geçici test için herkes admin olsun
-        const testMode = true; // Bunu false yapınca normal döner
+        const testMode = false; // Bunu false yapınca normal döner
         
         console.log('Kullanıcı rolü:', userData.role);
         console.log('Admin mi:', isAdmin);
