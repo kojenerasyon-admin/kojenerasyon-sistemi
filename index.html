@@ -4,98 +4,221 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kojenerasyon Takip Sistemi</title>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <h1>Kojenerasyon Takip Sistemi</h1>
-            <div class="header-actions">
-                <span id="user-name" class="user-info"></span>
-                <button onclick="logout()" class="logout-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path>
-                        <polyline points="16,17 21,12 16,7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    Çıkış
+    <!-- Login Container -->
+    <div id="login-container" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>⚡ Kojenerasyon Takip Sistemi</h1>
+                <p>Lütfen giriş yapınız</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label">Email Adresiniz</label>
+                    <input type="email" id="login-email" class="form-input" placeholder="ornek@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Şifreniz</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="Şifrenizi girin" required>
+                </div>
+                <button type="submit" class="btn" id="login-btn">
+                    <span>Giriş Yap</span>
                 </button>
-            </div>
-        </div>
-        <nav>
-            <button onclick="showPage('dashboard')">Kontrol Paneli</button>
-            <button onclick="showPage('data-entry')">Veri Girişi</button>
-            <button onclick="showPage('reports')">Raporlar</button>
-            <button onclick="showPage('users')">Kullanıcılar</button>
-        </nav>
-    </header>
-
-    <main id="main-content">
-        <div id="dashboard" class="page active">
-            <h2>Kontrol Paneli</h2>
-            <div class="dashboard-grid">
-                <div class="card">
-                    <h3>Günlük Üretim</h3>
-                    <div id="daily-production">-</div>
-                </div>
-                <div class="card">
-                    <h3>Verimlilik</h3>
-                    <div id="efficiency">-</div>
-                </div>
-                <div class="card">
-                    <h3>Aktif Kullanıcılar</h3>
-                    <div id="active-users">-</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="data-entry" class="page">
-            <h2>Veri Girişi</h2>
-            <form id="data-form">
-                <div class="form-group">
-                    <label for="date">Tarih:</label>
-                    <input type="date" id="date" required>
-                </div>
-                <div class="form-group">
-                    <label for="production">Üretim (kWh):</label>
-                    <input type="number" id="production" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="fuel">Yakıt Tüketimi (LT):</label>
-                    <input type="number" id="fuel" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="hours">Çalışma Saati:</label>
-                    <input type="number" id="hours" step="0.1" required>
-                </div>
-                <button type="submit">Kaydet</button>
             </form>
         </div>
+    </div>
 
-        <div id="reports" class="page">
-            <h2>Raporlar</h2>
-            <div class="report-controls">
-                <select id="report-period">
-                    <option value="daily">Günlük</option>
-                    <option value="weekly">Haftalık</option>
-                    <option value="monthly">Aylık</option>
-                </select>
-                <button onclick="generateReport()">Rapor Oluştur</button>
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>⚡ Kojenerasyon Takip Sistemi</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-details">
+                        <div class="user-name" id="user-name">Kullanıcı Adı</div>
+                        <div class="user-role" id="user-role">Rol</div>
+                    </div>
+                    <div class="user-avatar" id="user-avatar">KA</div>
+                    <button onclick="logout()" class="logout-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path>
+                            <polyline points="16,17 21,12 16,7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Çıkış
+                    </button>
+                </div>
             </div>
-            <div id="report-content"></div>
-        </div>
+        </header>
 
-        <div id="users" class="page">
-            <h2>Kullanıcı Yönetimi</h2>
-            <div id="user-list"></div>
-            <button onclick="addUser()">Yeni Kullanıcı Ekle</button>
-        </div>
-    </main>
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">
+                        <h2>📊 Menü</h2>
+                    </div>
+                </div>
+                <nav class="menu-section">
+                    <div class="menu-section-title">Ana Sayfa</div>
+                    <button class="menu-item active" onclick="showSection('overview')">
+                        <i>🏠</i>
+                        Kontrol Paneli
+                    </button>
+                    <button class="menu-item" onclick="showSection('data-entry')">
+                        <i>📝</i>
+                        Veri Girişi
+                    </button>
+                    <button class="menu-item" onclick="showSection('reports')">
+                        <i>📈</i>
+                        Raporlar
+                    </button>
+                    <div class="menu-section-title">Yönetim</div>
+                    <button class="menu-item" onclick="showSection('users')">
+                        <i>👥</i>
+                        Kullanıcılar
+                    </button>
+                    <button class="menu-item" onclick="showSection('settings')">
+                        <i>⚙️</i>
+                        Ayarlar
+                    </button>
+                </nav>
+            </aside>
 
-    <footer>
-        <p>&copy; 2026 Kojenerasyon Takip Sistemi</p>
-    </footer>
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="content-header">
+                    <div>
+                        <h1 id="section-title">Kontrol Paneli</h1>
+                        <p id="section-description">Sistem genel bakış</p>
+                    </div>
+                </div>
+
+                <!-- Overview Section -->
+                <section id="overview" class="content-section active">
+                    <div class="section-card">
+                        <h2><i>📊</i> İstatistikler</h2>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon energy">⚡</div>
+                                <div class="stat-value" id="daily-production">0</div>
+                                <div class="stat-label">Günlük Üretim (kWh)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon efficiency">📈</div>
+                                <div class="stat-value" id="efficiency">0%</div>
+                                <div class="stat-label">Verimlilik</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon motors">🔧</div>
+                                <div class="stat-value" id="motors-count">0</div>
+                                <div class="stat-label">Aktif Motorlar</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon maintenance">🛠️</div>
+                                <div class="stat-value" id="maintenance-count">0</div>
+                                <div class="stat-label">Bakım Planları</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Data Entry Section -->
+                <section id="data-entry" class="content-section">
+                    <div class="section-card">
+                        <h2><i>📝</i> Veri Girişi</h2>
+                        <form id="data-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Tarih</label>
+                                    <input type="date" id="date" class="form-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Üretim (kWh)</label>
+                                    <input type="number" id="production" class="form-input" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Yakıt Tüketimi (LT)</label>
+                                    <input type="number" id="fuel" class="form-input" step="0.01" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Çalışma Saati</label>
+                                    <input type="number" id="hours" class="form-input" step="0.1" required>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn">Kaydet</button>
+                                <button type="button" class="btn btn-secondary" onclick="resetForm()">Temizle</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Reports Section -->
+                <section id="reports" class="content-section">
+                    <div class="section-card">
+                        <h2><i>📈</i> Raporlar</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Rapor Periyodu</label>
+                                <select id="report-period" class="form-input">
+                                    <option value="daily">Günlük</option>
+                                    <option value="weekly">Haftalık</option>
+                                    <option value="monthly">Aylık</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="button" class="btn" onclick="generateReport()">Rapor Oluştur</button>
+                            </div>
+                        </div>
+                        <div id="report-content"></div>
+                    </div>
+                </section>
+
+                <!-- Users Section -->
+                <section id="users" class="content-section">
+                    <div class="section-card">
+                        <h2><i>👥</i> Kullanıcı Yönetimi</h2>
+                        <div id="user-list"></div>
+                        <div class="form-actions">
+                            <button type="button" class="btn" onclick="addUser()">Yeni Kullanıcı Ekle</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings" class="content-section">
+                    <div class="section-card">
+                        <h2><i>⚙️</i> Ayarlar</h2>
+                        <div class="form-group">
+                            <label class="form-label">Sistem Adı</label>
+                            <input type="text" id="system-name" class="form-input" value="Kojenerasyon Takip Sistemi">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Maksimum Kullanıcı Sayısı</label>
+                            <input type="number" id="max-users" class="form-input" value="5" min="1" max="10">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn" onclick="saveSettings()">Ayarları Kaydet</button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Alert Container -->
+    <div class="alert-overlay" id="alert-container"></div>
 
     <script src="js/app.js"></script>
     <script src="js/google-sheets.js"></script>
