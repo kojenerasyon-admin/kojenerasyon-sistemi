@@ -424,6 +424,8 @@ class GoogleSheetsAPI {
             const rows = data.values || [];
             
             console.log('Buhar verileri - Toplam satır sayısı:', rows.length);
+            console.log('İlk 5 satır:', rows.slice(0, 5));
+            console.log('F sütunu değerleri:', rows.map(row => row[5]).slice(0, 10));
             
             // 983 verisini bul (toplam buhar için)
             let totalSteam = 0;
@@ -486,6 +488,8 @@ class GoogleSheetsAPI {
             };
             
             console.log('Buhar verileri başarıyla çekildi:', steamData);
+            console.log('983 bulundu mu:', found983);
+            console.log('Dünkü tarih bulundu mu:', foundYesterday);
             return steamData;
             
         } catch (error) {
