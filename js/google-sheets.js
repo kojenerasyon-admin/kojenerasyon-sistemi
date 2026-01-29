@@ -8,12 +8,12 @@ class GoogleSheetsAPI {
 
     // API anahtarını ayarla
     setApiKey(apiKey) {
-        this.apiKey = apiKey;
+        this.apiKey = 'AIzaSyCcF6wYrhr2i41qaBti9Rgaas1a5XcWnBk';
     }
 
     // Spreadsheet ID'yi ayarla
     setSpreadsheetId(spreadsheetId) {
-        this.spreadsheetId = spreadsheetId;
+        this.spreadsheetId = '1ulhuSPzsICrbNX0jAIqQcFeWcQBXifSAXWwJzfmmyCc';
     }
 
     // Genel API isteği gönder
