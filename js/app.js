@@ -284,7 +284,8 @@ class KojenerasyonApp {
     }
 
     async saveHourlyDataEntry() {
-        console.log('Saatlik veri kaydetme başlatıldı...');
+        console.log('🔄 saveHourlyDataEntry başlatıldı...');
+        console.log('📍 Mevcut sayfa:', this.currentPage);
         
         const date = document.getElementById('hourly-date').value;
         
@@ -327,6 +328,8 @@ class KojenerasyonApp {
         };
 
         try {
+            console.log('💾 Veri kaydediliyor...');
+            
             // Google Sheets'e kaydet (API anahtarı geçerliyse)
             let sheetsSuccess = false;
             if (typeof googleSheets !== 'undefined' && googleSheets.saveHourlyData) {
@@ -349,19 +352,27 @@ class KojenerasyonApp {
             existingData.push(formData);
             localStorage.setItem('hourlyData', JSON.stringify(existingData));
             
+            console.log('✅ Veri kaydedildi, form temizleniyor...');
+            
             // Formu temizle ve sonraki tarihi ayarla
             this.resetHourlyForm();
             await this.setNextAvailableDate();
             
-            // Dashboard'u güncelle
+            console.log('🔍 Sayfa değişimi kontrolü - Mevcut sayfa:', this.currentPage);
+            
+            // Dashboard'u SADECE overview'daysa güncelle
             if (this.currentPage === 'overview') {
+                console.log('📊 Dashboard güncelleniyor...');
                 this.loadDashboardData();
+            } else {
+                console.log('⚠️ Overview sayfasında değil, dashboard güncellenmiyor');
             }
 
+            console.log('✅ saveHourlyDataEntry tamamlandı');
             return true; // Başarılı olduğunu belirt
 
         } catch (error) {
-            console.error('Saatlik veri kaydedilemedi:', error);
+            console.error('❌ Saatlik veri kaydedilemedi:', error);
             this.showError('Saatlik veri kaydedilemedi');
             return false;
         }
