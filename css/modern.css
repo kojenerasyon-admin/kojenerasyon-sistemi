@@ -570,59 +570,59 @@ body::before {
 
 /* Buhar Üretim Konteynerı */
 .steam-production-container {
-    margin-top: 20px;
+    margin-top: 20px !important;
 }
 
 .steam-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 16px;
-    padding: 20px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(40px) saturate(180%);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    position: relative;
-    overflow: hidden;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    gap: 16px !important;
+    padding: 20px !important;
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(40px) saturate(180%) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 16px !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
 .steam-info-grid::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #06b6d4, #3b82f6);
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 3px !important;
+    background: linear-gradient(90deg, #06b6d4, #3b82f6) !important;
 }
 
 .steam-info-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s ease;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 12px 16px !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.3s ease !important;
 }
 
 .steam-info-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    transform: translateY(-2px) !important;
 }
 
 .steam-info-item .info-label {
-    font-size: 13px;
-    color: var(--text-secondary);
-    font-weight: 500;
+    font-size: 13px !important;
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
 }
 
 .steam-info-item .info-value {
-    font-size: 15px;
-    color: var(--text-primary);
-    font-weight: 600;
+    font-size: 15px !important;
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
 }
 
 .motor-stats {
