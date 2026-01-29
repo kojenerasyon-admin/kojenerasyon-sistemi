@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kojenerasyon Takip Sistemi</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+    <header>
+        <h1>Kojenerasyon Takip Sistemi</h1>
+        <nav>
+            <button onclick="showPage('dashboard')">Kontrol Paneli</button>
+            <button onclick="showPage('data-entry')">Veri Girişi</button>
+            <button onclick="showPage('reports')">Raporlar</button>
+            <button onclick="showPage('users')">Kullanıcılar</button>
+        </nav>
+    </header>
+
+    <main id="main-content">
+        <div id="dashboard" class="page active">
+            <h2>Kontrol Paneli</h2>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Günlük Üretim</h3>
+                    <div id="daily-production">-</div>
+                </div>
+                <div class="card">
+                    <h3>Verimlilik</h3>
+                    <div id="efficiency">-</div>
+                </div>
+                <div class="card">
+                    <h3>Aktif Kullanıcılar</h3>
+                    <div id="active-users">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="data-entry" class="page">
+            <h2>Veri Girişi</h2>
+            <form id="data-form">
+                <div class="form-group">
+                    <label for="date">Tarih:</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="production">Üretim (kWh):</label>
+                    <input type="number" id="production" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="fuel">Yakıt Tüketimi (LT):</label>
+                    <input type="number" id="fuel" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="hours">Çalışma Saati:</label>
+                    <input type="number" id="hours" step="0.1" required>
+                </div>
+                <button type="submit">Kaydet</button>
+            </form>
+        </div>
+
+        <div id="reports" class="page">
+            <h2>Raporlar</h2>
+            <div class="report-controls">
+                <select id="report-period">
+                    <option value="daily">Günlük</option>
+                    <option value="weekly">Haftalık</option>
+                    <option value="monthly">Aylık</option>
+                </select>
+                <button onclick="generateReport()">Rapor Oluştur</button>
+            </div>
+            <div id="report-content"></div>
+        </div>
+
+        <div id="users" class="page">
+            <h2>Kullanıcı Yönetimi</h2>
+            <div id="user-list"></div>
+            <button onclick="addUser()">Yeni Kullanıcı Ekle</button>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Kojenerasyon Takip Sistemi</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script src="js/google-sheets.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/data-manager.js"></script>
+    <script src="js/charts.js"></script>
+</body>
+</html>
