@@ -9,95 +9,68 @@ class KojenerasyonApp {
 
     init() {
         document.addEventListener('DOMContentLoaded', () => {
-            this.setupEventListeners();
+            // Check configuration first
+            const configValidation = config.validate();
+            if (!configValidation.isValid) {
+                console.error('Configuration incomplete. Missing:', configValidation.missing);
+                alert('Yapılandırma eksik! Lütfen setup-config.html sayfasını açarak gerekli ayarları yapın.');
+                window.location.href = 'setup-config.html';
+                return;
+            }
+            
             this.checkAuthentication();
             this.loadDashboardData();
         });
     }
 
-    setupEventListeners() {
-        const dataForm = document.getElementById('data-form');
-        if (dataForm) {
-            dataForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.saveDataEntry();
-            });
-        }
 
-        const loginForm = document.getElementById('login-form');
-        if (loginForm) {
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleLogin();
-            });
-        }
-    }
 
     showSection(sectionName) {
+        // Tüm section'ları gizle
         const sections = document.querySelectorAll('.content-section');
         sections.forEach(section => section.classList.remove('active'));
-
+        
+        // Tüm menu item'ları pasif yap
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(item => item.classList.remove('active'));
+        
+        // İstenen section'ı göster
         const targetSection = document.getElementById(sectionName);
         if (targetSection) {
             targetSection.classList.add('active');
-            this.currentPage = sectionName;
-            this.updateMenuItems(sectionName);
-            this.loadSectionData(sectionName);
         }
-
-        const sectionTitle = document.getElementById('section-title');
-        const sectionDescription = document.getElementById('section-description');
         
-        const titles = {
-            'overview': { title: 'Genel Bakış', description: 'Sistem genel durumu' },
-            'data-entry': { title: 'Veri Girişi', description: 'Yeni veri ekle' },
-            'reports': { title: 'Raporlar', description: 'Veri analizleri' },
-            'users': { title: 'Kullanıcı Yönetimi', description: 'Kullanıcı işlemleri' },
-            'settings': { title: 'Ayarlar', description: 'Sistem ayarları' }
-        };
-
-        if (titles[sectionName]) {
-            sectionTitle.textContent = titles[sectionName].title;
-            sectionDescription.textContent = titles[sectionName].description;
+        // İlgili menu item'ı aktif yap
+        const targetMenuItem = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+        if (targetMenuItem) {
+            targetMenuItem.classList.add('active');
         }
+        
+        // Başlık ve açıklamayı güncelle
+        const titleElement = document.getElementById('section-title');
+        const descriptionElement = document.getElementById('section-description');
+        
+        if (sectionName === 'overview') {
+            titleElement.textContent = 'Kontrol Paneli';
+            descriptionElement.textContent = 'Sistem genel bakış';
+        }
+        
+        this.currentPage = sectionName;
     }
 
     updateMenuItems(activeSection) {
         const menuItems = document.querySelectorAll('.menu-item');
         menuItems.forEach(item => item.classList.remove('active'));
 
-        const sectionMap = {
-            'overview': 0,
-            'data-entry': 1,
-            'reports': 2,
-            'users': 3,
-            'settings': 4
-        };
-
-        if (sectionMap[activeSection] !== undefined) {
+        // Sadece overview var, direkt aktif yap
+        if (activeSection === 'overview') {
             const items = document.querySelectorAll('.menu-item');
-            if (items[sectionMap[activeSection]]) {
-                items[sectionMap[activeSection]].classList.add('active');
+            if (items[0]) {
+                items[0].classList.add('active');
             }
         }
     }
 
-    loadSectionData(sectionName) {
-        switch(sectionName) {
-            case 'overview':
-                this.loadDashboardData();
-                break;
-            case 'data-entry':
-                this.loadDataEntryForm();
-                break;
-            case 'reports':
-                this.loadReports();
-                break;
-            case 'users':
-                this.loadUsers();
-                break;
-        }
-    }
 
     async loadDashboardData() {
         try {
@@ -108,23 +81,23 @@ class KojenerasyonApp {
                 gm1: {
                     hours: sheetData.gm1.totalHours || '0.0',
                     power: sheetData.gm1.totalPower || '0.00',
+                    hourlyAvg: sheetData.gm1.hourlyAvg || '0.00',
                     dailyHours: sheetData.gm1.dailyHours || '0.0',
-                    dailyProduction: sheetData.gm1.dailyProduction || '0.00',
-                    hourlyAvg: sheetData.gm1.hourlyAvg || '0.00'
+                    dailyProduction: sheetData.gm1.dailyProduction || '0.00'
                 },
                 gm2: {
                     hours: sheetData.gm2.totalHours || '0.0',
                     power: sheetData.gm2.totalPower || '0.00',
+                    hourlyAvg: sheetData.gm2.hourlyAvg || '0.00',
                     dailyHours: sheetData.gm2.dailyHours || '0.0',
-                    dailyProduction: sheetData.gm2.dailyProduction || '0.00',
-                    hourlyAvg: sheetData.gm2.hourlyAvg || '0.00'
+                    dailyProduction: sheetData.gm2.dailyProduction || '0.00'
                 },
                 gm3: {
                     hours: sheetData.gm3.totalHours || '0.0',
                     power: sheetData.gm3.totalPower || '0.00',
+                    hourlyAvg: sheetData.gm3.hourlyAvg || '0.00',
                     dailyHours: sheetData.gm3.dailyHours || '0.0',
-                    dailyProduction: sheetData.gm3.dailyProduction || '0.00',
-                    hourlyAvg: sheetData.gm3.hourlyAvg || '0.00'
+                    dailyProduction: sheetData.gm3.dailyProduction || '0.00'
                 }
             };
             
@@ -162,23 +135,23 @@ class KojenerasyonApp {
             gm1: {
                 hours: (Math.random() * 1000 + 500).toFixed(1),
                 power: (Math.random() * 50 + 10).toFixed(2),
+                hourlyAvg: (Math.random() * 10 + 2).toFixed(2),
                 dailyHours: (Math.random() * 24).toFixed(1),
-                dailyProduction: (Math.random() * 100 + 20).toFixed(2),
-                hourlyAvg: (Math.random() * 10 + 2).toFixed(2)
+                dailyProduction: (Math.random() * 100 + 20).toFixed(2)
             },
             gm2: {
                 hours: (Math.random() * 1000 + 500).toFixed(1),
                 power: (Math.random() * 50 + 10).toFixed(2),
+                hourlyAvg: (Math.random() * 10 + 2).toFixed(2),
                 dailyHours: (Math.random() * 24).toFixed(1),
-                dailyProduction: (Math.random() * 100 + 20).toFixed(2),
-                hourlyAvg: (Math.random() * 10 + 2).toFixed(2)
+                dailyProduction: (Math.random() * 100 + 20).toFixed(2)
             },
             gm3: {
                 hours: (Math.random() * 1000 + 500).toFixed(1),
                 power: (Math.random() * 50 + 10).toFixed(2),
+                hourlyAvg: (Math.random() * 10 + 2).toFixed(2),
                 dailyHours: (Math.random() * 24).toFixed(1),
-                dailyProduction: (Math.random() * 100 + 20).toFixed(2),
-                hourlyAvg: (Math.random() * 10 + 2).toFixed(2)
+                dailyProduction: (Math.random() * 100 + 20).toFixed(2)
             }
         };
         
@@ -190,59 +163,40 @@ class KojenerasyonApp {
         const userData = JSON.parse(localStorage.getItem('userData') || '{}');
         const isAdmin = userData.role === 'ADMIN' || userData.role === 'admin';
         
-        // Geçici test için herkes admin olsun
-        const testMode = true; // Bunu false yapınca normal döner
-        
-        console.log('Kullanıcı rolü:', userData.role);
-        console.log('Admin mi:', isAdmin);
-        console.log('Test modu:', testMode);
-        
-        // Manuel olarak butonları göster
-        document.querySelectorAll('.status-edit-btn').forEach(btn => {
-            btn.style.display = 'flex';
-            console.log('Buton gösterildi:', btn.id);
-        });
-        
-        if (isAdmin || testMode) {
+        if (isAdmin) {
             // Admin ise düzenleme butonlarını göster
             document.querySelectorAll('.status-edit-btn').forEach(btn => {
                 btn.style.display = 'flex';
             });
-            console.log('Admin butonları gösterildi');
         } else {
-            console.log('Admin değil, butonlar gizlendi');
+            // Admin değilse butonları gizle
+            document.querySelectorAll('.status-edit-btn').forEach(btn => {
+                btn.style.display = 'none';
+            });
         }
+        
+        return isAdmin;
     }
 
-    updateMotorStatus(motorId, status) {
-        const statusElement = document.getElementById(`${motorId}-status`);
-        if (statusElement) {
-            statusElement.textContent = status;
-            statusElement.className = `motor-status ${status === 'AKTİF' ? 'active' : 'inactive'}`;
-        }
-    }
 
     updateMotorCards(motorData) {
-        // GM-1 kartını güncelle
-        document.getElementById('gm1-hours').textContent = motorData.gm1.hours;
-        document.getElementById('gm1-power').textContent = motorData.gm1.power;
-        document.getElementById('gm1-hourly-avg').textContent = motorData.gm1.hourlyAvg;
-        document.getElementById('gm1-daily-hours').textContent = motorData.gm1.dailyHours;
-        document.getElementById('gm1-daily-production').textContent = motorData.gm1.dailyProduction;
-
-        // GM-2 kartını güncelle
-        document.getElementById('gm2-hours').textContent = motorData.gm2.hours;
-        document.getElementById('gm2-power').textContent = motorData.gm2.power;
-        document.getElementById('gm2-hourly-avg').textContent = motorData.gm2.hourlyAvg;
-        document.getElementById('gm2-daily-hours').textContent = motorData.gm2.dailyHours;
-        document.getElementById('gm2-daily-production').textContent = motorData.gm2.dailyProduction;
-
-        // GM-3 kartını güncelle
-        document.getElementById('gm3-hours').textContent = motorData.gm3.hours;
-        document.getElementById('gm3-power').textContent = motorData.gm3.power;
-        document.getElementById('gm3-hourly-avg').textContent = motorData.gm3.hourlyAvg;
-        document.getElementById('gm3-daily-hours').textContent = motorData.gm3.dailyHours;
-        document.getElementById('gm3-daily-production').textContent = motorData.gm3.dailyProduction;
+        // Motor listesi - DRY principle
+        const motors = ['gm1', 'gm2', 'gm3'];
+        
+        // Her motor için aynı işlemi loop ile yap
+        motors.forEach(motor => {
+            const data = motorData[motor];
+            if (!data) return;
+            
+            // Motor verilerini güncelle
+            const fields = ['hours', 'power', 'hourly-avg', 'daily-hours', 'daily-production'];
+            fields.forEach(field => {
+                const element = document.getElementById(`${motor}-${field}`);
+                if (element) {
+                    element.textContent = data[field.replace(/-/g, '')] || '0.00';
+                }
+            });
+        });
     }
 
     updateSteamCards(steamData) {
@@ -252,92 +206,7 @@ class KojenerasyonApp {
         document.getElementById('steam-update').textContent = steamData.updateTime;
     }
 
-    async saveDataEntry() {
-        const formData = {
-            date: document.getElementById('date').value,
-            production: parseFloat(document.getElementById('production').value),
-            fuel: parseFloat(document.getElementById('fuel').value),
-            hours: parseFloat(document.getElementById('hours').value),
-            timestamp: new Date().toISOString()
-        };
 
-        try {
-            this.showSuccess('Veri başarıyla kaydedildi');
-            document.getElementById('data-form').reset();
-            
-            if (this.currentPage === 'overview') {
-                this.loadDashboardData();
-            }
-        } catch (error) {
-            console.error('Veri kaydedilemedi:', error);
-            this.showError('Veri kaydedilemedi');
-        }
-    }
-
-    loadDataEntryForm() {
-        const dateInput = document.getElementById('date');
-        if (dateInput) {
-            dateInput.valueAsDate = new Date();
-        }
-    }
-
-    async loadReports() {
-        try {
-            const reportData = {
-                totalProduction: Math.floor(Math.random() * 10000) + 5000,
-                avgEfficiency: Math.floor(Math.random() * 20) + 75,
-                totalHours: Math.floor(Math.random() * 100) + 50
-            };
-            this.displayReports(reportData);
-        } catch (error) {
-            console.error('Raporlar yüklenemedi:', error);
-            this.showError('Raporlar yüklenemedi');
-        }
-    }
-
-    displayReports(data) {
-        const reportContent = document.getElementById('report-content');
-        if (reportContent) {
-            reportContent.innerHTML = `
-                <div class="report-summary" style="background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; margin-top: 20px;">
-                    <h3 style="color: var(--text-primary); margin-bottom: 16px;">📊 Rapor Özeti</h3>
-                    <div style="display: grid; gap: 12px;">
-                        <p style="color: var(--text-secondary); margin: 0;"><strong>Toplam Üretim:</strong> ${data.totalProduction.toLocaleString()} kWh</p>
-                        <p style="color: var(--text-secondary); margin: 0;"><strong>Ortalama Verimlilik:</strong> %${data.avgEfficiency}</p>
-                        <p style="color: var(--text-secondary); margin: 0;"><strong>Toplam Çalışma Saati:</strong> ${data.totalHours} saat</p>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    async loadUsers() {
-        try {
-            const mockUsers = [
-                { name: 'Admin User', email: 'admin@kojen.com', role: 'Yönetici', active: true },
-                { name: 'Operator User', email: 'operator@kojen.com', role: 'Operatör', active: true },
-                { name: 'View User', email: 'viewer@kojen.com', role: 'İzleyici', active: false }
-            ];
-            this.displayUsers(mockUsers);
-        } catch (error) {
-            console.error('Kullanıcılar yüklenemedi:', error);
-            this.showError('Kullanıcılar yüklenemedi');
-        }
-    }
-
-    displayUsers(users) {
-        const userList = document.getElementById('user-list');
-        if (userList) {
-            userList.innerHTML = users.map(user => `
-                <div class="user-card" style="background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; margin-bottom: 16px;">
-                    <h4 style="color: var(--text-primary); margin: 0 0 8px 0;">${user.name}</h4>
-                    <p style="color: var(--text-secondary); margin: 4px 0; font-size: 14px;">📧 ${user.email}</p>
-                    <p style="color: var(--text-secondary); margin: 4px 0; font-size: 14px;">👤 ${user.role}</p>
-                    <p style="color: ${user.active ? 'var(--accent-success)' : 'var(--text-muted)'}; margin: 4px 0; font-size: 14px; font-weight: 600;">● ${user.active ? 'Aktif' : 'Pasif'}</p>
-                </div>
-            `).join('');
-        }
-    }
 
     checkAuthentication() {
         const token = localStorage.getItem('authToken');
@@ -383,7 +252,7 @@ class KojenerasyonApp {
         document.getElementById('login-container').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         this.loadDashboardData();
-        this.checkAdminStatus(); // Admin kontrolünü buraya ekledim
+        this.checkAdminStatus();
     }
 
     async handleLogin() {
@@ -407,7 +276,7 @@ class KojenerasyonApp {
                     this.showDashboard();
                     this.updateUserInfo();
                     this.showSuccess('Giriş başarılı');
-                    this.checkAdminStatus(); // Giriş sonrası admin kontrolü
+                    this.checkAdminStatus();
                 } else {
                     console.log('Giriş başarısız: Kullanıcı bulunamadı veya şifre hatalı');
                     // Güvenlik: başarısız girişte state'i ve localStorage'ı temizle
@@ -439,6 +308,10 @@ class KojenerasyonApp {
         this.showAlert(message, 'error');
     }
 
+    showInfo(message) {
+        this.showAlert(message, 'info');
+    }
+
     showAlert(message, type = 'info') {
         const alertContainer = document.getElementById('alert-container');
         if (!alertContainer) return;
@@ -462,6 +335,11 @@ class KojenerasyonApp {
 }
 
 // Global fonksiyonlar
+function showSection(sectionName) {
+    app.showSection(sectionName);
+}
+
+
 function toggleMotorStatus(motorId) {
     console.log('Durum değiştirme:', motorId);
     
@@ -495,26 +373,8 @@ function toggleMotorStatus(motorId) {
     app.showSuccess(`${motorId.toUpperCase()} durumu "${newStatus}" olarak güncellendi`);
 }
 
-function showSection(sectionName) {
-    app.showSection(sectionName);
-}
 
-function generateReport() {
-    app.loadReports();
-}
 
-function addUser() {
-    app.showAlert('Kullanıcı ekleme özelliği yakında eklenecek', 'info');
-}
-
-function saveSettings() {
-    app.showSuccess('Ayarlar kaydedildi');
-}
-
-function resetForm() {
-    document.getElementById('data-form').reset();
-    app.loadDataEntryForm();
-}
 
 function logout() {
     localStorage.removeItem('authToken');
@@ -524,11 +384,3 @@ function logout() {
 
 // Uygulamayı başlat
 const app = new KojenerasyonApp();
-
-// Sayfa yüklendiğinde admin kontrolünü çalıştır
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        console.log('Sayfa yüklendi, admin kontrolü başlatılıyor...');
-        app.checkAdminStatus();
-    }, 1000);
-});

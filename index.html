@@ -67,25 +67,11 @@
                     </div>
                 </div>
                 <nav class="menu-section">
-                    <div class="menu-section-title">Ana Sayfa</div>
                     <button onclick="showSection('overview')" class="menu-item active">
                         <i>⚡</i>
                         Genel Bakış
                     </button>
-                    <button onclick="showSection('data-entry')" class="menu-item">
-                        <i>�</i>
-                        Veri Girişi
-                    </button>
-                    <button onclick="showSection('reports')" class="menu-item">
-                        <i>📈</i>
-                        Raporlar
-                    </button>
-                    <div class="menu-section-title">Yönetim</div>
-                    <button onclick="showSection('users')" class="menu-item">
-                        <i>�</i>
-                        Kullanıcılar
-                    </button>
-                    <button onclick="showSection('settings')" class="menu-item">
+                    <button onclick="showSection('settings')" class="menu-item" id="settings-menu-item" style="display: none;">
                         <i>⚙️</i>
                         Ayarlar
                     </button>
@@ -134,7 +120,7 @@
                                             <div class="stat-value" id="gm1-power">0.00</div>
                                         </div>
                                         <div class="stat-item">
-                                            <div class="stat-label">Saatlik Ortalama Üretim (MW)</div>
+                                            <div class="stat-label">Ortalama Saatlik Üretim (MW)</div>
                                             <div class="stat-value" id="gm1-hourly-avg">0.00</div>
                                         </div>
                                         <div class="stat-item">
@@ -177,7 +163,7 @@
                                             <div class="stat-value" id="gm2-power">0.00</div>
                                         </div>
                                         <div class="stat-item">
-                                            <div class="stat-label">Saatlik Ortalama Üretim (MW)</div>
+                                            <div class="stat-label">Ortalama Saatlik Üretim (MW)</div>
                                             <div class="stat-value" id="gm2-hourly-avg">0.00</div>
                                         </div>
                                         <div class="stat-item">
@@ -220,7 +206,7 @@
                                             <div class="stat-value" id="gm3-power">0.00</div>
                                         </div>
                                         <div class="stat-item">
-                                            <div class="stat-label">Saatlik Ortalama Üretim (MW)</div>
+                                            <div class="stat-label">Ortalama Saatlik Üretim (MW)</div>
                                             <div class="stat-value" id="gm3-hourly-avg">0.00</div>
                                         </div>
                                         <div class="stat-item">
@@ -259,89 +245,110 @@
                     </div>
                 </section>
 
-                <!-- Data Entry Section -->
-                <section id="data-entry" class="content-section">
-                    <div class="section-card">
-                        <h2><i>📝</i> Veri Girişi</h2>
-                        <form id="data-form">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Tarih</label>
-                                    <input type="date" id="date" class="form-input" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Üretim (kWh)</label>
-                                    <input type="number" id="production" class="form-input" step="0.01" required>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Yakıt Tüketimi (LT)</label>
-                                    <input type="number" id="fuel" class="form-input" step="0.01" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Çalışma Saati</label>
-                                    <input type="number" id="hours" class="form-input" step="0.1" required>
-                                </div>
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn">Kaydet</button>
-                                <button type="button" class="btn btn-secondary" onclick="resetForm()">Temizle</button>
-                            </div>
-                        </form>
-                    </div>
-                </section>
-
-                <!-- Reports Section -->
-                <section id="reports" class="content-section">
-                    <div class="section-card">
-                        <h2><i>📈</i> Raporlar</h2>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Rapor Periyodu</label>
-                                <select id="report-period" class="form-input">
-                                    <option value="daily">Günlük</option>
-                                    <option value="weekly">Haftalık</option>
-                                    <option value="monthly">Aylık</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">&nbsp;</label>
-                                <button type="button" class="btn" onclick="generateReport()">Rapor Oluştur</button>
-                            </div>
-                        </div>
-                        <div id="report-content"></div>
-                    </div>
-                </section>
-
-                <!-- Users Section -->
-                <section id="users" class="content-section">
-                    <div class="section-card">
-                        <h2><i>👥</i> Kullanıcı Yönetimi</h2>
-                        <div id="user-list"></div>
-                        <div class="form-actions">
-                            <button type="button" class="btn" onclick="addUser()">Yeni Kullanıcı Ekle</button>
-                        </div>
-                    </div>
-                </section>
-
                 <!-- Settings Section -->
                 <section id="settings" class="content-section">
                     <div class="section-card">
-                        <h2><i>⚙️</i> Ayarlar</h2>
-                        <div class="form-group">
-                            <label class="form-label">Sistem Adı</label>
-                            <input type="text" id="system-name" class="form-input" value="Kojenerasyon Takip Sistemi">
+                        <h2><i>⚙️</i> Sistem Ayarları</h2>
+                        
+                        <!-- Google API Configuration -->
+                        <div class="config-subsection">
+                            <h3>🔐 Google API Ayarları</h3>
+                            <form id="google-api-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Google API Key</label>
+                                        <input type="password" id="settings-google-api-key" class="form-input" placeholder="AIzaSy...">
+                                        <small class="form-help">Google Sheets API anahtarınız</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Spreadsheet ID</label>
+                                        <input type="text" id="settings-spreadsheet-id" class="form-input" placeholder="1ulhuSPzsICrbNX0jAIqQcFeWcQBXifSAXWwJzfmmyCc">
+                                        <small class="form-help">Google Sheets belge ID</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Google Client ID</label>
+                                        <input type="text" id="settings-client-id" class="form-input" placeholder="548462430886-...apps.googleusercontent.com">
+                                        <small class="form-help">OAuth 2.0 Client ID</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Google Client Secret</label>
+                                        <input type="password" id="settings-client-secret" class="form-input" placeholder="GOCSPX-...">
+                                        <small class="form-help">OAuth 2.0 Client Secret</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Redirect URI</label>
+                                    <input type="url" id="settings-redirect-uri" class="form-input" placeholder="http://localhost:3000/oauth-callback.html">
+                                    <small class="form-help">OAuth yönlendirme adresi</small>
+                                </div>
+                            </form>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Maksimum Kullanıcı Sayısı</label>
-                            <input type="number" id="max-users" class="form-input" value="5" min="1" max="10">
+                        
+                        <!-- Application Configuration -->
+                        <div class="config-subsection">
+                            <h3>⚙️ Uygulama Ayarları</h3>
+                            <form id="app-config-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Uygulama Ortamı</label>
+                                        <select id="settings-app-env" class="form-input">
+                                            <option value="development">Development</option>
+                                            <option value="production">Production</option>
+                                        </select>
+                                        <small class="form-help">Uygulama çalışma ortamı</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Maksimum Kullanıcı</label>
+                                        <input type="number" id="settings-max-users" class="form-input" min="1" max="100" value="5">
+                                        <small class="form-help">Maksimum kullanıcı limiti</small>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn" onclick="saveSettings()">Ayarları Kaydet</button>
+                        
+                        <!-- Configuration Status -->
+                        <div class="config-status">
+                            <h3>📊 Yapılandırma Durumu</h3>
+                            <div id="config-status-display" class="status-grid">
+                                <div class="status-item">
+                                    <span class="status-label">Google API:</span>
+                                    <span class="status-value" id="status-google-api">❌ Yapılandırılmamış</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">OAuth 2.0:</span>
+                                    <span class="status-value" id="status-oauth">❌ Yapılandırılmamış</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Spreadsheet:</span>
+                                    <span class="status-value" id="status-spreadsheet">❌ Yapılandırılmamış</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Genel Durum:</span>
+                                    <span class="status-value" id="status-overall">❌ Eksik</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="config-actions">
+                            <button onclick="saveConfiguration()" class="btn btn-primary">
+                                💾 Ayarları Kaydet
+                            </button>
+                            <button onclick="testConfiguration()" class="btn btn-secondary">
+                                🧪 Yapılandırmayı Test Et
+                            </button>
+                            <button onclick="resetConfiguration()" class="btn btn-danger">
+                                🔄 Sıfırla
+                            </button>
                         </div>
                     </div>
                 </section>
+
+
             </main>
         </div>
     </div>
@@ -349,9 +356,12 @@
     <!-- Alert Container -->
     <div class="alert-overlay" id="alert-container"></div>
 
-    <script src="js/google-sheets.js?v=20260129-1"></script>
-    <script src="js/auth.js?v=20260129-1"></script>
+    <script src="js/config.js?v=20260130-1"></script>
+    <script src="js/jwt-handler.js?v=20260130-1"></script>
+    <script src="js/auth.js?v=20260130-1"></script>
     <script src="js/data-manager.js?v=20260129-1"></script>
+    <script src="js/settings.js?v=20260130-1"></script>
+    <script src="js/google-sheets.js?v=20260129-1"></script>
     <script src="js/app.js?v=20260129-1"></script>
 </body>
 </html>

@@ -16,6 +16,12 @@ class AuthSystem {
                 this.currentUser = user;
                 this.token = this.generateToken(user);
                 
+                // Session oluştur
+                const payload = jwtHandler.verifyToken(this.token);
+                if (payload && payload.sessionId) {
+                    this.createSession(payload.sessionId);
+                }
+                
                 // Local storage'a kaydet
                 localStorage.setItem('authToken', this.token);
                 localStorage.setItem('userData', JSON.stringify(user));
@@ -42,6 +48,14 @@ class AuthSystem {
 
     // Çıkış yap
     logout() {
+        // Session'ı sonlandır
+        if (this.token) {
+            const payload = jwtHandler.decodeToken(this.token);
+            if (payload && payload.sessionId) {
+                this.destroySession(payload.sessionId);
+            }
+        }
+        
         this.currentUser = null;
         this.token = null;
         
@@ -53,33 +67,64 @@ class AuthSystem {
         window.location.reload();
     }
 
-    // Token oluştur
+    // Token oluştur (JWT-like)
     generateToken(user) {
         const payload = {
             email: user.email,
             role: user.role,
-            timestamp: Date.now()
+            name: user.name || user.email,
+            sessionId: this.generateSessionId()
         };
         
-        // Basit token oluşturma (gerçek uygulamada JWT kullanılmalı)
-        return btoa(JSON.stringify(payload));
+        // JWT-like token oluştur
+        return jwtHandler.createToken(payload, '24h');
+    }
+
+    // Session ID oluştur
+    generateSessionId() {
+        return 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
     // Token doğrula
     validateToken(token) {
         try {
-            const payload = JSON.parse(atob(token));
-            const now = Date.now();
+            // JWT-like token doğrula
+            const payload = jwtHandler.verifyToken(token);
             
-            // Token 24 saat geçerli
-            if (now - payload.timestamp > 24 * 60 * 60 * 1000) {
+            if (!payload) {
+                return false;
+            }
+            
+            // Additional session validation
+            if (payload.sessionId && !this.isValidSession(payload.sessionId)) {
                 return false;
             }
             
             return payload;
         } catch (error) {
+            console.error('Token validation error:', error);
             return false;
         }
+    }
+
+    // Session doğrula
+    isValidSession(sessionId) {
+        const activeSessions = JSON.parse(localStorage.getItem('activeSessions') || '{}');
+        return activeSessions[sessionId] === true;
+    }
+
+    // Session oluştur
+    createSession(sessionId) {
+        const activeSessions = JSON.parse(localStorage.getItem('activeSessions') || '{}');
+        activeSessions[sessionId] = true;
+        localStorage.setItem('activeSessions', JSON.stringify(activeSessions));
+    }
+
+    // Session sonlandır
+    destroySession(sessionId) {
+        const activeSessions = JSON.parse(localStorage.getItem('activeSessions') || '{}');
+        delete activeSessions[sessionId];
+        localStorage.setItem('activeSessions', JSON.stringify(activeSessions));
     }
 
     // Mevcut kullanıcıyı kontrol et
@@ -243,15 +288,38 @@ class AuthSystem {
     // Oturum süresini uzat
     extendSession() {
         if (this.currentUser && this.token) {
-            const payload = this.validateToken(this.token);
-            if (payload) {
-                payload.timestamp = Date.now();
-                this.token = this.generateToken(this.currentUser);
-                localStorage.setItem('authToken', this.token);
-                return true;
+            try {
+                // Token'ı yenile
+                const newToken = jwtHandler.refreshToken(this.token);
+                
+                if (newToken) {
+                    this.token = newToken;
+                    localStorage.setItem('authToken', this.token);
+                    return true;
+                }
+            } catch (error) {
+                console.error('Session extension failed:', error);
             }
         }
         return false;
+    }
+
+    // Token yenile kontrolü
+    async checkAndRefreshToken() {
+        if (!this.token) return false;
+        
+        const payload = jwtHandler.decodeToken(this.token);
+        if (!payload) return false;
+        
+        const now = Math.floor(Date.now() / 1000);
+        const timeUntilExpiry = payload.exp - now;
+        
+        // Token 1 saat içinde doluyorsa yenile
+        if (timeUntilExpiry < 3600) {
+            return this.extendSession();
+        }
+        
+        return true;
     }
 }
 
