@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
     initializeEventListeners();
     checkAuthentication();
-    // Initialize PWA
-    initializePWA();
+    // PWA disabled temporarily - Service Worker not found
+    // initializePWA();
     // Removed Google Sheets initialization - using Backend API
 });
 
@@ -711,135 +711,8 @@ function toggleUserMenu() {
 
 // Google Sheets Integration - Backend API
 async function loadGoogleSheetsData() {
-    try {
-        console.log('Attempting to connect to Backend API...');
-        console.log('API URL:', API_BASE_URL);
-        console.log('Current page URL:', window.location.href);
-        
-        // Simple test first
-        console.log('🔄 Testing basic connection...');
-        
-        try {
-            const testResponse = await fetch('https://kojenerasyon-sistemi-2.onrender.com/health', {
-                method: 'GET',
-                mode: 'cors'
-            });
-            
-            console.log('Test response status:', testResponse.status);
-            console.log('Test response ok:', testResponse.ok);
-            console.log('Test response headers:', [...testResponse.headers.entries()]);
-            
-            if (testResponse.ok) {
-                const healthData = await testResponse.json();
-                console.log('Health check response:', healthData);
-                
-                // First, try to create the user if not exists
-                console.log('🔄 Creating admin user...');
-                try {
-                    const createResponse = await fetch(`${API_BASE_URL}/auth/register`, {
-                        method: 'POST',
-                        mode: 'cors',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            ad: "Admin User",
-                            email: "admin@kojenerasyon.com",
-                            password: "admin123",
-                            rol: "admin"
-                        })
-                    });
-                    
-                    console.log('Create user response status:', createResponse.status);
-                    if (createResponse.ok) {
-                        const createResult = await createResponse.json();
-                        console.log('Create user result:', createResult);
-                    } else {
-                        const createError = await createResponse.text();
-                        console.log('Create user error (might already exist):', createError);
-                    }
-                } catch (createError) {
-                    console.log('Create user fetch error:', createError.message);
-                }
-                
-                // Now try login
-                console.log('🔄 Attempting login...');
-                const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: "admin@kojenerasyon.com",
-                        password: "admin123"
-                    })
-                });
-                
-                console.log('Login response status:', loginResponse.status);
-                console.log('Login response ok:', loginResponse.ok);
-                console.log('Login response headers:', [...loginResponse.headers.entries()]);
-                
-                if (loginResponse.ok) {
-                    const loginResult = await loginResponse.json();
-                    console.log('Login result:', loginResult);
-                    
-                    if (loginResult.success && loginResult.token) {
-                        localStorage.setItem('authToken', loginResult.token);
-                        
-                        // Get production data
-                        const response = await fetch(`${API_BASE_URL}/production`, {
-                            method: 'GET',
-                            mode: 'cors',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${loginResult.token}`
-                            }
-                        });
-                        
-                        console.log('Production response status:', response.status);
-                        
-                        if (response.ok) {
-                            const result = await response.json();
-                            console.log('Production result:', result);
-                            
-                            if (result.success) {
-                                AppState.googleSheetsData.production = result.data.map(item => ({
-                                    date: item.tarih,
-                                    shift: item.vardiya,
-                                    production: item.uretimMWh,
-                                    efficiency: item.verimlilikYuzde,
-                                    status: item.durum
-                                }));
-                                console.log('✅ Backend API data loaded successfully');
-                                return true;
-                            }
-                        }
-                    }
-                } else {
-                    const errorText = await loginResponse.text();
-                    console.log('Login error response:', errorText);
-                }
-            } else {
-                const errorText = await testResponse.text();
-                console.log('Health error response:', errorText);
-            }
-        } catch (fetchError) {
-            console.log('❌ Fetch error details:', {
-                name: fetchError.name,
-                message: fetchError.message,
-                stack: fetchError.stack
-            });
-        }
-        
-    } catch (error) {
-        console.log('❌ Backend API not available, using mock data:', error.message);
-        console.log('🔍 Check if backend is running on http://127.0.0.1:3000');
-        console.log('🌐 Current origin:', window.location.origin);
-    }
-    
-    // Fallback to mock data
-    console.log('📊 Using mock data instead');
+    // Backend deployment issues - using mock data for now
+    console.log('� Backend deployment in progress - using mock data');
     loadMockData();
     return false;
 }
