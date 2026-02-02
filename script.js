@@ -262,9 +262,9 @@ function initializeEventListeners() {
     }
     
     // Energy Page
-    const saveEnergyBtn = document.getElementById('saveEnergyData');
-    if (saveEnergyBtn) {
-        saveEnergyBtn.addEventListener('click', saveEnergyData);
+    const saveHourlyBtn = document.getElementById('saveHourlyData');
+    if (saveHourlyBtn) {
+        saveHourlyBtn.addEventListener('click', saveHourlyData);
     }
     
     // Auto-focus email input
@@ -720,50 +720,114 @@ function initializeEnergyPage() {
     document.getElementById('hourlyDate').value = today;
     document.getElementById('dailyDate').value = today;
     
-    // Set current hour
-    const currentHour = new Date().getHours().toString().padStart(2, '0') + ':00';
-    document.getElementById('hourlyHour').value = currentHour;
+    // Initialize tab switching
+    initializeEnergyTabs();
 }
 
-function saveEnergyData() {
-    // Get form data
-    const hourlyData = {
-        date: document.getElementById('hourlyDate').value,
-        hour: document.getElementById('hourlyHour').value,
-        production: document.getElementById('hourlyProduction').value,
-        efficiency: document.getElementById('hourlyEfficiency').value
-    };
+function initializeEnergyTabs() {
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
     
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.dataset.tab;
+            
+            // Update button states
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Update content visibility
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === targetTab + 'Tab') {
+                    content.classList.add('active');
+                }
+            });
+            
+            // Update save button based on active tab
+            updateSaveButton(targetTab);
+        });
+    });
+}
+
+function updateSaveButton(activeTab) {
+    const saveBtn = document.getElementById('saveHourlyData');
+    if (activeTab === 'hourly') {
+        saveBtn.textContent = 'Saatlik Verileri Kaydet';
+        saveBtn.onclick = saveHourlyData;
+    } else {
+        saveBtn.textContent = 'Günlük Verileri Kaydet';
+        saveBtn.onclick = saveDailyData;
+    }
+}
+
+function saveHourlyData() {
+    const date = document.getElementById('hourlyDate').value;
+    
+    if (!date) {
+        showNotification('Tarih seçin', 'error');
+        return;
+    }
+    
+    const hourlyData = [];
+    const rows = document.querySelectorAll('.hourly-row');
+    
+    rows.forEach((row, index) => {
+        const time = row.querySelector('.hourly-time').textContent;
+        const aktifInput = row.querySelector('.hourly-aktif');
+        const reaktifInput = row.querySelector('.hourly-reaktif');
+        
+        if (aktifInput.value || reaktifInput.value) {
+            hourlyData.push({
+                date: date,
+                time: time,
+                aktif: parseFloat(aktifInput.value) || 0,
+                reaktif: parseFloat(reaktifInput.value) || 0
+            });
+        }
+    });
+    
+    if (hourlyData.length === 0) {
+        showNotification('En az bir saatlik veri girin', 'error');
+        return;
+    }
+    
+    console.log('Saatlik veriler:', hourlyData);
+    showNotification(`${date} tarihli ${hourlyData.length} saatlik veri başarıyla kaydedildi`, 'success');
+    
+    // Clear all inputs
+    document.querySelectorAll('.hourly-inputs input').forEach(input => {
+        input.value = '';
+    });
+}
+
+function saveDailyData() {
     const dailyData = {
         date: document.getElementById('dailyDate').value,
-        shift: document.getElementById('dailyShift').value,
-        production: document.getElementById('dailyProduction').value,
-        efficiency: document.getElementById('dailyEfficiency').value
+        yagSeviyesi: parseFloat(document.getElementById('yagSeviyesi').value) || 0,
+        kuplaj: parseFloat(document.getElementById('kuplaj').value) || 0,
+        gm1: parseFloat(document.getElementById('gm1').value) || 0,
+        gm2: parseFloat(document.getElementById('gm2').value) || 0,
+        gm3: parseFloat(document.getElementById('gm3').value) || 0,
+        icIhtiyac: parseFloat(document.getElementById('icIhtiyac').value) || 0,
+        redresor1: parseFloat(document.getElementById('redresor1').value) || 0,
+        redresor2: parseFloat(document.getElementById('redresor2').value) || 0,
+        kojenIcIhtiyac: parseFloat(document.getElementById('kojenIcIhtiyac').value) || 0,
+        servisTrafo: parseFloat(document.getElementById('servisTrafo').value) || 0
     };
     
-    // Validate data
-    if (!hourlyData.date || !hourlyData.production || !hourlyData.efficiency) {
-        showNotification('Saatlik veri girişi için tüm alanları doldurun', 'error');
+    if (!dailyData.date) {
+        showNotification('Tarih seçin', 'error');
         return;
     }
     
-    if (!dailyData.date || !dailyData.production || !dailyData.efficiency) {
-        showNotification('Günlük veri girişi için tüm alanları doldurun', 'error');
-        return;
-    }
+    console.log('Günlük veriler:', dailyData);
+    showNotification('Günlük veriler başarıyla kaydedildi', 'success');
     
-    // Save to backend (when available)
-    console.log('Saatlik veri:', hourlyData);
-    console.log('Günlük veri:', dailyData);
-    
-    // Show success message
-    showNotification('Enerji verileri başarıyla kaydedildi', 'success');
-    
-    // Clear forms
-    document.getElementById('hourlyProduction').value = '';
-    document.getElementById('hourlyEfficiency').value = '';
-    document.getElementById('dailyProduction').value = '';
-    document.getElementById('dailyEfficiency').value = '';
+    // Clear form inputs
+    document.querySelectorAll('.daily-input-group input').forEach(input => {
+        input.value = '';
+    });
 }
 
 // Sidebar Management

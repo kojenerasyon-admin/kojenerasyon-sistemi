@@ -438,7 +438,7 @@
             <div class="page-header">
                 <h1>Enerji</h1>
                 <div class="page-actions">
-                    <button class="btn btn-primary" id="saveEnergyData">
+                    <button class="btn btn-primary" id="saveHourlyData">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                             <path d="M2 1a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V2a1 1 0 00-1-1H2zm12 0v12H2V2h12z"/>
                             <path d="M4 4h8v1H4V4zm0 2h8v1H4V6zm0 2h5v1H4V8z"/>
@@ -448,87 +448,257 @@
                 </div>
             </div>
 
-            <div class="energy-content">
-                <!-- Saatlik Veri Girişi -->
+            <div class="energy-tabs">
+                <button class="tab-btn active" data-tab="hourly">Saatlik Veri Girişi</button>
+                <button class="tab-btn" data-tab="daily">Günlük Veri Girişi</button>
+            </div>
+
+            <!-- Saatlik Veri Girişi -->
+            <div class="tab-content active" id="hourlyTab">
                 <div class="energy-section">
                     <div class="section-header">
                         <h2>Saatlik Veri Girişi</h2>
-                        <p class="section-description">Saatlik enerji üretim verilerini girin</p>
+                        <p class="section-description">Saatlik enerji üretim verilerini girin (00:00 - 23:00)</p>
                     </div>
-                    <div class="energy-form">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="hourlyDate">Tarih</label>
-                                <input type="date" id="hourlyDate" class="form-input">
+                    <div class="hourly-date-section">
+                        <div class="form-group">
+                            <label for="hourlyDate">Tarih</label>
+                            <input type="date" id="hourlyDate" class="form-input">
+                        </div>
+                    </div>
+                    <div class="hourly-grid">
+                        <!-- 00:00 - 02:00 -->
+                        <div class="hourly-row">
+                            <div class="hourly-time">00:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
                             </div>
-                            <div class="form-group">
-                                <label for="hourlyHour">Saat</label>
-                                <select id="hourlyHour" class="form-input">
-                                    <option value="00:00">00:00</option>
-                                    <option value="01:00">01:00</option>
-                                    <option value="02:00">02:00</option>
-                                    <option value="03:00">03:00</option>
-                                    <option value="04:00">04:00</option>
-                                    <option value="05:00">05:00</option>
-                                    <option value="06:00">06:00</option>
-                                    <option value="07:00">07:00</option>
-                                    <option value="08:00">08:00</option>
-                                    <option value="09:00">09:00</option>
-                                    <option value="10:00">10:00</option>
-                                    <option value="11:00">11:00</option>
-                                    <option value="12:00">12:00</option>
-                                    <option value="13:00">13:00</option>
-                                    <option value="14:00">14:00</option>
-                                    <option value="15:00">15:00</option>
-                                    <option value="16:00">16:00</option>
-                                    <option value="17:00">17:00</option>
-                                    <option value="18:00">18:00</option>
-                                    <option value="19:00">19:00</option>
-                                    <option value="20:00">20:00</option>
-                                    <option value="21:00">21:00</option>
-                                    <option value="22:00">22:00</option>
-                                    <option value="23:00">23:00</option>
-                                </select>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">01:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
                             </div>
-                            <div class="form-group">
-                                <label for="hourlyProduction">Üretim (MWh)</label>
-                                <input type="number" id="hourlyProduction" class="form-input" placeholder="0.00" step="0.01">
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">02:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
                             </div>
-                            <div class="form-group">
-                                <label for="hourlyEfficiency">Verimlilik (%)</label>
-                                <input type="number" id="hourlyEfficiency" class="form-input" placeholder="0.00" step="0.01" min="0" max="100">
+                        </div>
+                        <!-- 03:00 - 05:00 -->
+                        <div class="hourly-row">
+                            <div class="hourly-time">03:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">04:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">05:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <!-- 06:00 - 08:00 -->
+                        <div class="hourly-row">
+                            <div class="hourly-time">06:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">07:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">08:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <!-- 09:00 - 11:00 -->
+                        <div class="hourly-row">
+                            <div class="hourly-time">09:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">10:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">11:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <!-- 12:00 - 14:00 -->
+                        <div class="hourly-row">
+                            <div class="hourly-time">12:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">13:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">14:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <!-- 15:00 - 17:00 -->
+                        <div class="hourly-row">
+                            <div class="hourly-time">15:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">16:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">17:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <!-- 18:00 - 20:00 -->
+                        <div class="hourly-row">
+                            <div class="hourly-time">18:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">19:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">20:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <!-- 21:00 - 23:00 -->
+                        <div class="hourly-row">
+                            <div class="hourly-time">21:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">22:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
+                            </div>
+                        </div>
+                        <div class="hourly-row">
+                            <div class="hourly-time">23:00</div>
+                            <div class="hourly-inputs">
+                                <input type="number" class="form-input hourly-aktif" placeholder="AKTİF (MWh)" step="0.01">
+                                <input type="number" class="form-input hourly-reaktif" placeholder="REAKTİF (kVAh)" step="0.01">
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Günlük Veri Girişi -->
+            <!-- Günlük Veri Girişi -->
+            <div class="tab-content" id="dailyTab">
                 <div class="energy-section">
                     <div class="section-header">
                         <h2>Günlük Veri Girişi</h2>
-                        <p class="section-description">Günlük enerji üretim verilerini girin</p>
+                        <p class="section-description">Günlük enerji verilerini girin</p>
                     </div>
-                    <div class="energy-form">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="dailyDate">Tarih</label>
-                                <input type="date" id="dailyDate" class="form-input">
+                    <div class="daily-form">
+                        <div class="form-group">
+                            <label for="dailyDate">Tarih</label>
+                            <input type="date" id="dailyDate" class="form-input">
+                        </div>
+                        <div class="daily-grid">
+                            <div class="daily-input-group">
+                                <label>YAĞ SEVİYESİ (LT)</label>
+                                <input type="number" id="yagSeviyesi" class="form-input" placeholder="0.00" step="0.01">
                             </div>
-                            <div class="form-group">
-                                <label for="dailyShift">Vardiya</label>
-                                <select id="dailyShift" class="form-input">
-                                    <option value="1. Vardiya">1. Vardiya (00:00-08:00)</option>
-                                    <option value="2. Vardiya">2. Vardiya (08:00-16:00)</option>
-                                    <option value="3. Vardiya">3. Vardiya (16:00-24:00)</option>
-                                </select>
+                            <div class="daily-input-group">
+                                <label>KUPLAJ (MWh)</label>
+                                <input type="number" id="kuplaj" class="form-input" placeholder="0.00" step="0.01">
                             </div>
-                            <div class="form-group">
-                                <label for="dailyProduction">Üretim (MWh)</label>
-                                <input type="number" id="dailyProduction" class="form-input" placeholder="0.00" step="0.01">
+                            <div class="daily-input-group">
+                                <label>GM-1 (MWh)</label>
+                                <input type="number" id="gm1" class="form-input" placeholder="0.00" step="0.01">
                             </div>
-                            <div class="form-group">
-                                <label for="dailyEfficiency">Verimlilik (%)</label>
-                                <input type="number" id="dailyEfficiency" class="form-input" placeholder="0.00" step="0.01" min="0" max="100">
+                            <div class="daily-input-group">
+                                <label>GM-2 (MWh)</label>
+                                <input type="number" id="gm2" class="form-input" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="daily-input-group">
+                                <label>GM-3 (MWh)</label>
+                                <input type="number" id="gm3" class="form-input" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="daily-input-group">
+                                <label>İÇ İHTİYAÇ (MWh)</label>
+                                <input type="number" id="icIhtiyac" class="form-input" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="daily-input-group">
+                                <label>1. REDRESÖR (MWh)</label>
+                                <input type="number" id="redresor1" class="form-input" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="daily-input-group">
+                                <label>2. REDRESÖR (MWh)</label>
+                                <input type="number" id="redresor2" class="form-input" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="daily-input-group">
+                                <label>KOJEN İÇ İHTİYAÇ (KWh)</label>
+                                <input type="number" id="kojenIcIhtiyac" class="form-input" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="daily-input-group">
+                                <label>SERVİS TRAFOSU (MWh)</label>
+                                <input type="number" id="servisTrafo" class="form-input" placeholder="0.00" step="0.01">
                             </div>
                         </div>
                     </div>
