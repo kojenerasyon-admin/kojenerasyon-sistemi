@@ -13,7 +13,7 @@ const AppState = {
 };
 
 // Google Sheets Configuration - Backend API
-const API_BASE_URL = 'http://127.0.0.1:3000/api';
+const API_BASE_URL = 'https://kojenerasyon-sistemi-2.onrender.com/api';
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', function() {
@@ -720,7 +720,7 @@ async function loadGoogleSheetsData() {
         console.log('🔄 Testing basic connection...');
         
         try {
-            const testResponse = await fetch('http://127.0.0.1:3000/health', {
+            const testResponse = await fetch('https://kojenerasyon-sistemi-2.onrender.com/health', {
                 method: 'GET',
                 mode: 'cors'
             });
