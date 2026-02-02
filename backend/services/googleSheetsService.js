@@ -297,7 +297,7 @@ class GoogleSheetsService {
         spreadsheetId: this.spreadsheetId,
         range: 'Users!A:F',
         valueInputOption: 'USER_ENTERED',
-        resource: {
+        requestBody: {
           values: [row]
         }
       });
@@ -305,6 +305,66 @@ class GoogleSheetsService {
       return response.data;
     } catch (error) {
       console.error('Error adding user:', error);
+      throw error;
+    }
+  }
+
+  // Yeni metodlar - Energy sayfaları için
+  async getAllSheets() {
+    try {
+      const response = await this.sheets.spreadsheets.get({
+        spreadsheetId: this.spreadsheetId
+      });
+      return response.data.sheets.map(sheet => sheet.properties.title);
+    } catch (error) {
+      console.error('Error getting all sheets:', error);
+      throw error;
+    }
+  }
+
+  async getValues(sheetName, range) {
+    try {
+      const response = await this.sheets.spreadsheets.values.get({
+        spreadsheetId: this.spreadsheetId,
+        range: `${sheetName}!${range}`
+      });
+      return response.data.values;
+    } catch (error) {
+      console.error(`Error getting values from ${sheetName}:`, error);
+      throw error;
+    }
+  }
+
+  async updateValues(sheetName, range, values) {
+    try {
+      const response = await this.sheets.spreadsheets.values.update({
+        spreadsheetId: this.spreadsheetId,
+        range: `${sheetName}!${range}`,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: {
+          values: values
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating values in ${sheetName}:`, error);
+      throw error;
+    }
+  }
+
+  async appendValues(sheetName, range, values) {
+    try {
+      const response = await this.sheets.spreadsheets.values.append({
+        spreadsheetId: this.spreadsheetId,
+        range: `${sheetName}!${range}`,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: {
+          values: values
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error appending values to ${sheetName}:`, error);
       throw error;
     }
   }

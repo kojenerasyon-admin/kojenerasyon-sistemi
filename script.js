@@ -722,6 +722,12 @@ function initializeEnergyPage() {
     
     // Initialize tab switching
     initializeEnergyTabs();
+    
+    // Initialize create monthly sheets button
+    const createSheetsBtn = document.getElementById('createMonthlySheetsBtn');
+    if (createSheetsBtn) {
+        createSheetsBtn.onclick = createMonthlySheets;
+    }
 }
 
 function initializeEnergyTabs() {
@@ -761,6 +767,43 @@ function updateSaveButton(activeTab) {
     }
 }
 
+async function createMonthlySheets() {
+    try {
+        const year = prompt('Yıl girin (örn: 2024):', new Date().getFullYear());
+        if (!year) return;
+        
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            showNotification('Önce giriş yapın', 'error');
+            return;
+        }
+        
+        showNotification('Aylık sayfalar oluşturuluyor...', 'info');
+        
+        const response = await fetch(`${API_BASE_URL}/energy/create-monthly-sheets`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ year: year })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Aylık sayfa oluşturma sonucu:', result);
+            showNotification(`${year} yılı için ${result.createdSheets?.length || 0} aylık sayfa oluşturuldu`, 'success');
+        } else {
+            const error = await response.text();
+            console.error('Aylık sayfa oluşturma hatası:', error);
+            showNotification('Sayfa oluşturma sırasında hata oluştu', 'error');
+        }
+    } catch (error) {
+        console.error('Aylık sayfa oluşturma hatası:', error);
+        showNotification('Bağlantı hatası', 'error');
+    }
+}
+
 function saveHourlyData() {
     const date = document.getElementById('hourlyDate').value;
     
@@ -769,36 +812,103 @@ function saveHourlyData() {
         return;
     }
     
+    // Vardiya sor
+    const vardiya = prompt('Vardiya seçin (1/2/3):');
+    if (!vardiya || !['1', '2', '3'].includes(vardiya)) {
+        showNotification('Geçerli vardiya seçin (1, 2, veya 3)', 'error');
+        return;
+    }
+    
     const hourlyData = [];
     const rows = document.querySelectorAll('.hourly-row');
+    let emptyInputs = [];
     
     rows.forEach((row, index) => {
         const time = row.querySelector('.hourly-time').textContent;
         const aktifInput = row.querySelector('.hourly-aktif');
         const reaktifInput = row.querySelector('.hourly-reaktif');
         
-        if (aktifInput.value || reaktifInput.value) {
+        // Boş inputları kontrol et
+        if (!aktifInput.value && !reaktifInput.value) {
+            emptyInputs.push(time);
+        } else {
             hourlyData.push({
                 date: date,
                 time: time,
+                vardiya: vardiya,
                 aktif: parseFloat(aktifInput.value) || 0,
-                reaktif: parseFloat(reaktifInput.value) || 0
+                reaktif: parseFloat(reaktifInput.value) || 0,
+                aydemAktif: 0, // Manuel girilecek
+                aydemReaktif: 0 // Manuel girilecek
             });
         }
     });
+    
+    // Boş input varsa sor
+    if (emptyInputs.length > 0) {
+        const confirmEmpty = confirm(`${emptyInputs.join(', ')} saatlerinde veri girilmemiş. Yine de kaydetmek istiyor musunuz?`);
+        if (!confirmEmpty) {
+            return;
+        }
+    }
     
     if (hourlyData.length === 0) {
         showNotification('En az bir saatlik veri girin', 'error');
         return;
     }
     
-    console.log('Saatlik veriler:', hourlyData);
-    showNotification(`${date} tarihli ${hourlyData.length} saatlik veri başarıyla kaydedildi`, 'success');
-    
-    // Clear all inputs
-    document.querySelectorAll('.hourly-inputs input').forEach(input => {
-        input.value = '';
-    });
+    // Google Sheets'e kaydet
+    saveHourlyDataToSheets(hourlyData, vardiya);
+}
+
+async function saveHourlyDataToSheets(hourlyData, vardiya) {
+    try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            showNotification('Önce giriş yapın', 'error');
+            return;
+        }
+        
+        // Tarihten ay ve yılı al
+        const date = new Date(hourlyData[0].date);
+        const monthNames = ['OCAK', 'ŞUBAT', 'MART', 'NİSAN', 'MAYIS', 'HAZİRAN', 
+                           'TEMMUZ', 'AĞUSTOS', 'EYLÜL', 'EKİM', 'KASIM', 'ARALIK'];
+        const monthName = monthNames[date.getMonth()];
+        const year = date.getFullYear();
+        const sheetName = `${monthName} ${year}`;
+        
+        // Google Sheets API çağrısı
+        const response = await fetch(`${API_BASE_URL}/energy/hourly`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                sheetName: sheetName,
+                vardiya: vardiya,
+                data: hourlyData
+            })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Google Sheets kayıt sonucu:', result);
+            showNotification(`${sheetName} sayfasına ${hourlyData.length} saatlik veri başarıyla kaydedildi`, 'success');
+            
+            // Input'ları temizle
+            document.querySelectorAll('.hourly-inputs input').forEach(input => {
+                input.value = '';
+            });
+        } else {
+            const error = await response.text();
+            console.error('Google Sheets kayıt hatası:', error);
+            showNotification('Kayıt sırasında hata oluştu', 'error');
+        }
+    } catch (error) {
+        console.error('Google Sheets bağlantı hatası:', error);
+        showNotification('Google Sheets bağlantısı kurulamadı', 'error');
+    }
 }
 
 function saveDailyData() {

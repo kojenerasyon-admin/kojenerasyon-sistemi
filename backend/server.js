@@ -19,6 +19,7 @@ const authRoutes = require('./routes/auth');
 const productionRoutes = require('./routes/production');
 const userRoutes = require('./routes/users');
 const motorRoutes = require('./routes/motors');
+const energyRoutes = require('./routes/energy');
 
 const app = express();
 
@@ -76,6 +77,7 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/production', dataLimiter, productionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/motors', dataLimiter, motorRoutes);
+app.use('/api/energy', dataLimiter, energyRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
