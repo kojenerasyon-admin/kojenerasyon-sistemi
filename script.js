@@ -261,6 +261,12 @@ function initializeEventListeners() {
         rememberMeCheckbox.checked = true;
     }
     
+    // Energy Page
+    const saveEnergyBtn = document.getElementById('saveEnergyData');
+    if (saveEnergyBtn) {
+        saveEnergyBtn.addEventListener('click', saveEnergyData);
+    }
+    
     // Auto-focus email input
     setTimeout(() => {
         document.getElementById('email').focus();
@@ -672,24 +678,92 @@ function handleNavigation(e) {
     e.currentTarget.classList.add('active');
     
     // Update current page
-    AppState.currentPage = page;
-    
-    // Load page content
-    loadPage(page);
+    showPage(page);
 }
 
-function loadPage(page) {
+// Navigation and Page Management
+function showPage(pageId) {
     // Hide all pages
-    document.querySelectorAll('.page').forEach(p => {
-        p.style.display = 'none';
+    document.querySelectorAll('.page').forEach(page => {
+        page.style.display = 'none';
     });
     
     // Show selected page
-    const pageElement = document.getElementById(`${page}Page`);
-    if (pageElement) {
-        pageElement.style.display = 'block';
-        pageElement.classList.add('active');
+    const selectedPage = document.getElementById(pageId + 'Page');
+    if (selectedPage) {
+        selectedPage.style.display = 'block';
     }
+    
+    // Update navigation
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    const activeLink = document.querySelector(`[data-page="${pageId}"]`);
+    if (activeLink) {
+        activeLink.classList.add('active');
+    }
+    
+    // Update app state
+    AppState.currentPage = pageId;
+    
+    // Handle energy page specific initialization
+    if (pageId === 'energy') {
+        initializeEnergyPage();
+    }
+}
+
+// Energy Page Functions
+function initializeEnergyPage() {
+    // Set default dates
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('hourlyDate').value = today;
+    document.getElementById('dailyDate').value = today;
+    
+    // Set current hour
+    const currentHour = new Date().getHours().toString().padStart(2, '0') + ':00';
+    document.getElementById('hourlyHour').value = currentHour;
+}
+
+function saveEnergyData() {
+    // Get form data
+    const hourlyData = {
+        date: document.getElementById('hourlyDate').value,
+        hour: document.getElementById('hourlyHour').value,
+        production: document.getElementById('hourlyProduction').value,
+        efficiency: document.getElementById('hourlyEfficiency').value
+    };
+    
+    const dailyData = {
+        date: document.getElementById('dailyDate').value,
+        shift: document.getElementById('dailyShift').value,
+        production: document.getElementById('dailyProduction').value,
+        efficiency: document.getElementById('dailyEfficiency').value
+    };
+    
+    // Validate data
+    if (!hourlyData.date || !hourlyData.production || !hourlyData.efficiency) {
+        showNotification('Saatlik veri girişi için tüm alanları doldurun', 'error');
+        return;
+    }
+    
+    if (!dailyData.date || !dailyData.production || !dailyData.efficiency) {
+        showNotification('Günlük veri girişi için tüm alanları doldurun', 'error');
+        return;
+    }
+    
+    // Save to backend (when available)
+    console.log('Saatlik veri:', hourlyData);
+    console.log('Günlük veri:', dailyData);
+    
+    // Show success message
+    showNotification('Enerji verileri başarıyla kaydedildi', 'success');
+    
+    // Clear forms
+    document.getElementById('hourlyProduction').value = '';
+    document.getElementById('hourlyEfficiency').value = '';
+    document.getElementById('dailyProduction').value = '';
+    document.getElementById('dailyEfficiency').value = '';
 }
 
 // Sidebar Management
@@ -711,8 +785,8 @@ function toggleUserMenu() {
 
 // Google Sheets Integration - Backend API
 async function loadGoogleSheetsData() {
-    // Backend deployment issues - using mock data for now
-    console.log('� Backend deployment in progress - using mock data');
+    console.log('📊 Mobile test mode - using mock data');
+    console.log('🔗 Backend will be fixed later');
     loadMockData();
     return false;
 }

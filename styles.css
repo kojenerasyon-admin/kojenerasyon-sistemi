@@ -1325,26 +1325,216 @@ body {
     padding: 6px 12px;
   }
   
+  #pwa-update-notification {
+    right: 10px;
+    left: 10px;
+    font-size: 12px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
 
-@media (max-width: 480px) {
-  .header-container {
-    padding: 0 12px;
+/* iOS PWA Standalone Mode */
+@media (display-mode: standalone) {
+  .header {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .sidebar {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Energy Page Styles */
+.energy-content {
+  padding: 24px 0;
+}
+
+.energy-section {
+  background-color: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.section-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.section-description {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.energy-form {
+  margin-top: 16px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.form-input {
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: var(--transition-normal);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.form-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .energy-content {
+    padding: 16px 0;
+  }
+  
+  .energy-section {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .section-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+  }
+  
+  .section-header h2 {
+    font-size: 18px;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Mobile PWA Optimizations */
+@media (max-width: 768px) {
+  #pwa-install-btn {
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+  
+  .offline-indicator {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  
+  #pwa-update-notification {
+    right: 10px;
+    left: 10px;
+    font-size: 12px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .motors-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .motor-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .motor-power {
+    text-align: left;
+  }
+  
+  .motor-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .motor-stat:nth-child(5) {
+    grid-column: 1;
+  }
+  
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  
+  .sidebar-toggle {
+    display: block;
   }
   
   .main-content {
-    padding: 12px;
+    margin-left: 0;
   }
   
-  .stat-card {
-    padding: 16px;
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
   
-  .chart-card {
-    padding: 16px;
+  .charts-grid {
+    grid-template-columns: 1fr;
   }
   
-  .table-card {
-    padding: 16px;
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 
