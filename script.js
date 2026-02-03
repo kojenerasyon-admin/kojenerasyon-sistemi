@@ -13,7 +13,7 @@ const AppState = {
 };
 
 // Google Sheets Configuration - Backend API
-const API_BASE_URL = '/api'; // Proxy üzerinden backend'e git
+const API_BASE_URL = '/api'; // Backend API URL
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', function() {
@@ -26,9 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
     initializeEventListeners();
     checkAuthentication();
-    // GitHub Pages demo mode - Service Worker disabled
-    console.log('📱 Demo mode: Service Worker disabled');
-    // Removed Google Sheets initialization - using Backend API
+    
 });
 
 // PWA Functions
@@ -191,10 +189,6 @@ async function subscribeToPushNotifications() {
 
         console.log('Push notification subscription:', subscription);
         
-        // GitHub Pages demo mode - backend disabled
-        console.log('📱 Demo mode: Push notification disabled');
-        return;
-
         // Send subscription to backend
         await fetch(`${API_BASE_URL}/notifications/subscribe`, {
             method: 'POST',
@@ -700,9 +694,6 @@ function initializeEnergyPage() {
     // Set default dates
     const today = new Date();
     
-    // GitHub Pages demo mode - use mock data
-    console.log('📱 Demo mode: Using mock energy data');
-    
     document.getElementById('hourlyDate').value = today.toISOString().split('T')[0];
     document.getElementById('dailyDate').value = today.toISOString().split('T')[0];
     
@@ -758,18 +749,12 @@ async function createMonthlySheets() {
         const year = prompt('Yıl girin (örn: 2024):', new Date().getFullYear());
         if (!year) return;
         
-        // GitHub Pages demo mode - backend disabled
-        console.log('📱 Demo mode: Monthly sheets creation disabled');
-        showNotification('Demo modu: Aylık sayfalar oluşturma devre dışı', 'info');
-        return;
-        
         const token = localStorage.getItem('authToken');
         console.log('🔑 Token kontrolü:', token); // Debug
         console.log('🔑 localStorage items:', Object.keys(localStorage)); // Debug
         
         if (!token) {
             showNotification('Önce giriş yapın', 'error');
-            console.log('❌ Token bulunamadı!'); // Debug
             return;
         }
         
@@ -844,11 +829,6 @@ function saveHourlyData() {
     console.log('📊 Kaydedilen saatler:', hourlyData.length, 'saat');
     console.log('📊 Boş saatler:', emptyInputs.length, 'saat');
     
-    // GitHub Pages demo mode - backend disabled
-    console.log('📱 Demo mode: Hourly data saving disabled');
-    showNotification('Demo modu: Saatlik veri kaydetme devre dışı', 'info');
-    return;
-    
     // Google Sheets'e kaydet
     saveHourlyDataToSheets(hourlyData, vardiya);
 }
@@ -876,10 +856,6 @@ async function saveHourlyDataToSheets(hourlyData, vardiya) {
         try {
             showNotification('Veriler Google Sheets\'e gönderiliyor...', 'info');
             
-            // GitHub Pages demo mode - backend disabled
-            console.log('� Demo mode: Backend API disabled');
-            throw new Error('Demo modu: Backend bağlantısı devre dışı');
-            
             const response = await fetch(`${API_BASE_URL}/energy/hourly`, {
                 method: 'POST',
                 headers: {
@@ -895,48 +871,19 @@ async function saveHourlyDataToSheets(hourlyData, vardiya) {
             
             if (response.ok) {
                 const result = await response.json();
-                console.log('✅ Backend kayıt sonucu:', result);
-                backendSuccess = true;
+                console.log('✅ Veriler başarıyla gönderildi:', result);
+                showNotification('Veriler başarıyla kaydedildi', 'success');
                 
-                // Başarılı olursa pending veriyi sil ve normal storage'a taşı
-                localStorage.removeItem(pendingStorageKey);
-                
-                const updatedStorage = [...existingData];
-                dataToSave.forEach(newItem => {
-                    const existingIndex = updatedStorage.findIndex(existingItem => 
-                        existingItem.date === newItem.date && 
-                        existingItem.time === newItem.time &&
-                        existingItem.vardiya === newItem.vardiya
-                    );
-                    
-                    if (existingIndex >= 0) {
-                        updatedStorage[existingIndex] = newItem; // Üzerine yaz
-                    } else {
-                        updatedStorage.push(newItem); // Yeni ekle
-                    }
-                });
-                
-                localStorage.setItem(storageKey, JSON.stringify(updatedStorage));
-                
-                // Mock mode kontrolü
-                if (result.note && result.note.includes('Apps Script')) {
-                    showNotification(`${sheetName} sayfasına ${dataToSave.length} saatlik veri başarıyla kaydedildi (Mock Mode - Demo)`, 'success');
-                } else {
-                    showNotification(`${sheetName} sayfasına ${dataToSave.length} saatlik veri başarıyla kaydedildi`, 'success');
+                // Clear pending data on success
+                if (pendingData.length > 0) {
+                    localStorage.removeItem('pendingHourlyData');
+                    console.log('🗑️ Bekleyen veriler temizlendi');
                 }
-                
-                // Input'ları temizle
-                document.querySelectorAll('.hourly-inputs input').forEach(input => {
-                    input.value = '';
-                });
-                return;
             } else {
-                const error = await response.text();
-                console.error('❌ Backend hatası:', error);
-                throw new Error('Backend hatası: ' + error);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        } catch (backendError) {
-            console.error('❌ Backend bağlantısı başarısız:', backendError);
+        } catch (error) {
+            console.error('❌ Backend bağlantısı başarısız:', error);
             showNotification('Google Sheets bağlantısı başarısız. Veriler yerel olarak kaydedildi ve daha sonra tekrar denenir.', 'warning');
         }
         
@@ -969,19 +916,34 @@ function checkPendingData() {
         pendingKeys.forEach(async (pendingKey) => {
             try {
                 const pendingData = JSON.parse(localStorage.getItem(pendingKey));
-                console.log('� Bekleyen veri gönderiliyor:', pendingData.sheetName);
+                console.log('📊 Bekleyen veri gönderiliyor:', pendingData.sheetName);
                 
-                // GitHub Pages demo mode - backend disabled
-                console.log('📱 Demo mode: Backend API disabled');
-                throw new Error('Demo modu: Backend bağlantısı devre dışı');
+                const response = await fetch(`${API_BASE_URL}/energy/hourly`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({
+                        sheetName: pendingData.sheetName,
+                        vardiya: pendingData.vardiya,
+                        data: pendingData.data
+                    })
+                });
                 
-                // Burada backend'e tekrar gönderme mantığı eklenebilir
-                // Şimdilik sadece bildirim göster
-                
-                localStorage.removeItem(pendingKey);
-                console.log('✅ Bekleyen veri işlendi:', pendingData.sheetName);
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('✅ Bekleyen veri başarıyla gönderildi:', result);
+                    showNotification('Bekleyen veri başarıyla gönderildi', 'success');
+                    
+                    // Clear pending data on success
+                    localStorage.removeItem(pendingKey);
+                    console.log('🗑️ Bekleyen veriler temizlendi');
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
             } catch (error) {
-                console.error('❌ Bekleyen veri işlenemedi:', error);
+                console.error('❌ Bekleyen veri gönderimi başarısız:', error);
             }
         });
     }
@@ -1038,10 +1000,6 @@ async function loadGoogleSheetsData() {
     try {
         const token = localStorage.getItem('authToken');
         if (!token) return false;
-        
-        // GitHub Pages demo mode - use mock data
-        console.log('📱 Demo mode: Using mock production data');
-        return mockProductionData;
         
         const response = await fetch(`${API_BASE_URL}/production`, {
             headers: {
