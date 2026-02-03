@@ -13,7 +13,7 @@ const AppState = {
 };
 
 // Google Sheets Configuration - Backend API
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = '/api'; // Proxy üzerinden backend'e git
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', function() {
@@ -250,9 +250,6 @@ function initializeEventListeners() {
     // Password Toggle
     document.getElementById('passwordToggle').addEventListener('click', togglePasswordVisibility);
     
-    // Biometric Login
-    document.getElementById('biometricBtn').addEventListener('click', handleBiometricLogin);
-    
     // Remember Me
     const rememberMeCheckbox = document.getElementById('rememberMe');
     const savedEmail = localStorage.getItem('rememberedEmail');
@@ -274,9 +271,6 @@ function initializeEventListeners() {
     
     // Keyboard shortcuts
     document.addEventListener('keydown', handleKeyboardShortcuts);
-    
-    // Touch gestures
-    initTouchGestures();
     
     // Dashboard Actions
     document.getElementById('refreshData').addEventListener('click', refreshDashboardData);
@@ -384,9 +378,22 @@ function togglePasswordVisibility() {
 // Authentication System
 function checkAuthentication() {
     const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
+    const savedToken = localStorage.getItem('authToken');
+    
+    console.log('🔑 CheckAuth - User:', savedUser); // Debug
+    console.log('🔑 CheckAuth - Token:', savedToken); // Debug
+    
+    if (savedUser && savedToken) {
         AppState.currentUser = JSON.parse(savedUser);
         AppState.isAuthenticated = true;
+        showDashboard();
+    } else if (savedUser && !savedToken) {
+        // User var ama token yok, token oluştur
+        const authToken = 'demo-token-' + Date.now();
+        localStorage.setItem('authToken', authToken);
+        AppState.currentUser = JSON.parse(savedUser);
+        AppState.isAuthenticated = true;
+        console.log('🔑 CheckAuth - Token oluşturuldu:', authToken); // Debug
         showDashboard();
     } else {
         showLoginScreen();
@@ -425,6 +432,10 @@ function handleLogin(e) {
             AppState.currentUser = user;
             AppState.isAuthenticated = true;
             localStorage.setItem('currentUser', JSON.stringify(user));
+            const authToken = 'demo-token-' + Date.now(); // Demo token
+            localStorage.setItem('authToken', authToken);
+            console.log('🔑 Login - Token set edildi:', authToken); // Debug
+            console.log('🔑 Login - localStorage items:', Object.keys(localStorage)); // Debug
             
             // Handle remember me
             if (rememberMe) {
@@ -453,45 +464,6 @@ function handleLogin(e) {
             }, 10);
         }
     }, 1200);
-}
-
-// Biometric Login
-async function handleBiometricLogin() {
-    if (!window.PublicKeyCredential) {
-        showNotification('Bu cihaz biometrik giriş desteklemiyor', 'error');
-        return;
-    }
-    
-    try {
-        showNotification('Biometrik doğrulama başlatılıyor...', 'info');
-        
-        // Create credential request
-        const credential = await navigator.credentials.get({
-            publicKey: {
-                challenge: new Uint8Array(32),
-                allowCredentials: [{
-                    type: 'public-key',
-                    id: new Uint8Array(32),
-                    transports: ['internal', 'usb']
-                }],
-                userVerification: 'required'
-            }
-        });
-        
-        showNotification('Biometrik doğrulama başarılı!', 'success');
-        
-        // Auto-login with biometric success
-        setTimeout(() => {
-            const autoUser = getUsers()[0]; // Use first user for demo
-            AppState.currentUser = autoUser;
-            AppState.isAuthenticated = true;
-            localStorage.setItem('currentUser', JSON.stringify(autoUser));
-            showDashboard();
-        }, 1000);
-        
-    } catch (error) {
-        showNotification('Biometrik doğrulama başarısız', 'error');
-    }
 }
 
 // Keyboard Shortcuts
@@ -548,7 +520,7 @@ function initTouchGestures() {
     }
 }
 
-// Success Message
+// Keyboard Shortcuts Message
 function showSuccessMessage(message) {
     const successDiv = document.createElement('div');
     successDiv.className = 'success-message';
@@ -773,11 +745,16 @@ async function createMonthlySheets() {
         if (!year) return;
         
         const token = localStorage.getItem('authToken');
+        console.log('🔑 Token kontrolü:', token); // Debug
+        console.log('🔑 localStorage items:', Object.keys(localStorage)); // Debug
+        
         if (!token) {
             showNotification('Önce giriş yapın', 'error');
+            console.log('❌ Token bulunamadı!'); // Debug
             return;
         }
         
+        console.log('✅ Token bulundu:', token); // Debug
         showNotification('Aylık sayfalar oluşturuluyor...', 'info');
         
         const response = await fetch(`${API_BASE_URL}/energy/create-monthly-sheets`, {
@@ -1197,44 +1174,31 @@ async function refreshDashboardData() {
     }
 }
 
-
-// Responsive Design
-function handleResponsive() {
-    const width = window.innerWidth;
-    const sidebar = document.getElementById('sidebar');
-    
-    if (width <= 768) {
-        sidebar.classList.add('collapsed');
-        AppState.sidebarCollapsed = true;
-    } else if (width > 768 && AppState.sidebarCollapsed) {
-        sidebar.classList.remove('collapsed');
-        AppState.sidebarCollapsed = false;
-    }
-}
-
-window.addEventListener('resize', handleResponsive);
-handleResponsive();
-
 // Utility Functions
-function showNotification(message, type = 'info') {
+function showNotification(message, type = 'info', duration = 3000) {
+    console.log('🔔 Bildirim gösteriliyor:', message, type); // Debug
+    
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
-    notification.textContent = message;
     
     // Style notification
     Object.assign(notification.style, {
         position: 'fixed',
         bottom: '20px',
         right: '20px',
-        padding: '12px 20px',
-        borderRadius: '8px',
+        padding: '16px 24px',
+        borderRadius: '12px',
         color: 'white',
-        fontWeight: '500',
+        fontWeight: '600',
+        fontSize: '16px',
         zIndex: '10000',
         opacity: '0',
         transform: 'translateY(20px)',
-        transition: 'all 0.3s ease'
+        transition: 'all 0.3s ease',
+        minWidth: '300px',
+        maxWidth: '400px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
     });
     
     // Set background color based on type
@@ -1280,5 +1244,3 @@ function logPerformance() {
 }
 
 window.addEventListener('load', logPerformance);
-/ /   F o r c e   r e b u i l d   -   0 2 / 0 2 / 2 0 2 6   2 3 : 4 5 : 1 8  
- 

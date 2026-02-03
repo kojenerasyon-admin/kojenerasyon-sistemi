@@ -48,8 +48,11 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Skip external API calls
-  if (request.url.includes('localhost:3000') || request.url.includes('127.0.0.1:3000')) {
+  // Skip external API calls, script.js and styles.css for development
+  if (request.url.includes('localhost:3000') || 
+      request.url.includes('127.0.0.1:3000') ||
+      request.url.includes('script.js') ||
+      request.url.includes('styles.css')) {
     event.respondWith(fetch(request));
     return;
   }

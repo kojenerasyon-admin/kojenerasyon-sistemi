@@ -683,37 +683,6 @@ body {
     height: 24px;
 }
 
-.biometric-login {
-    display: flex;
-    justify-content: center;
-    margin: 24px 0;
-}
-
-.biometric-btn {
-    background: var(--bg-primary);
-    border: 2px solid var(--border-color);
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    color: var(--text-secondary);
-}
-
-.biometric-btn:hover {
-    border-color: var(--accent-primary);
-    color: var(--accent-primary);
-    transform: scale(1.05);
-    box-shadow: var(--shadow-md);
-}
-
-.biometric-btn:active {
-    transform: scale(0.95);
-}
-
 .swipe-indicator {
     position: absolute;
     bottom: 20px;
@@ -1587,98 +1556,65 @@ body {
   font-size: 14px;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .energy-tabs {
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  
-  .tab-btn {
-    padding: 10px 16px;
-    text-align: center;
-    border-bottom: none;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    margin-bottom: 0;
-  }
-  
-  .tab-btn.active {
-    border-color: var(--accent-primary);
-    background-color: var(--accent-light);
-  }
-  
-  .hourly-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    max-height: none;
-    overflow-y: visible;
-  }
-  
-  .hourly-row {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    background-color: var(--surface);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 12px;
-  }
-  
-  .hourly-time {
-    background: none;
-    border: none;
-    padding: 0;
-    margin-bottom: 8px;
-    justify-content: flex-start;
-  }
-  
-  .hourly-inputs {
-    gap: 12px;
-    margin-bottom: 0;
-  }
-  
-  .daily-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
+.daily-input.success-message svg {
+  width: 24px;
+  height: 24px;
 }
 
-@media (max-width: 480px) {
-  .hourly-inputs {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .daily-input-group .form-input {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
+.forgot-password-indicator {
+  font-size: 12px;
+  padding: 6px 12px;
 }
 
-/* Mobile PWA Optimizations */
-@media (max-width: 768px) {
-  #pwa-install-btn {
-    bottom: 20px;
-    right: 20px;
-    padding: 10px 16px;
-    font-size: 12px;
+/* Footer */
+footer {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.motor-header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Print Styles */
+@media print {
+  .sidebar,
+  .nav-header,
+  .btn,
+  .notification {
+    display: none !important;
   }
   
-  .offline-indicator {
-    font-size: 12px;
-    padding: 6px 12px;
-  }
-  
-  #pwa-update-notification {
-    right: 10px;
-    left: 10px;
-    font-size: 12px;
+  .main-content {
+    margin-left: 0 !important;
   }
   
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
