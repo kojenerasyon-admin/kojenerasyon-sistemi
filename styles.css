@@ -1037,11 +1037,52 @@ body {
   border-bottom: 1px solid var(--border-light);
 }
 
+.motor-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  width: 100%;
+}
+
+.motor-details-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  flex: 1;
+}
+
+.motor-name,
+.motor-details,
+.motor-power {
+  flex: 1;
+  text-align: center;
+}
+
+.motor-status-toggle {
+  flex: 1;
+  text-align: center;
+  margin-left: 20px;
+}
+
+.motor-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.motor-details {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
 .motor-controls {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
+  align-items: center;
+  gap: 16px;
 }
 
 .motor-power {
