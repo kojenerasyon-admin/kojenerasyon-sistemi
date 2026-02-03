@@ -850,37 +850,60 @@ async function saveHourlyDataToSheets(hourlyData, vardiya) {
         const year = date.getFullYear();
         const sheetName = `${monthName} ${year}`;
         
-        // Google Sheets API çağrısı
-        const response = await fetch(`${API_BASE_URL}/energy/hourly`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                sheetName: sheetName,
-                vardiya: vardiya,
-                data: hourlyData
-            })
+        console.log('🔍 Kaydedilecek veriler:', { sheetName, vardiya, data: hourlyData });
+        
+        // Önce backend'i dene
+        try {
+            const response = await fetch(`${API_BASE_URL}/energy/hourly`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    sheetName: sheetName,
+                    vardiya: vardiya,
+                    data: hourlyData
+                })
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                console.log('✅ Google Sheets kayıt sonucu:', result);
+                showNotification(`${sheetName} sayfasına ${hourlyData.length} saatlik veri başarıyla kaydedildi`, 'success');
+                
+                // Input'ları temizle
+                document.querySelectorAll('.hourly-inputs input').forEach(input => {
+                    input.value = '';
+                });
+                return;
+            } else {
+                const error = await response.text();
+                console.error('❌ Backend hatası:', error);
+                throw new Error('Backend hatası');
+            }
+        } catch (backendError) {
+            console.warn('⚠️ Backend bağlantısı başarısız, localStorage kullanılacak:', backendError);
+        }
+        
+        // Backend çalışmazsa localStorage'a kaydet
+        const storageKey = `hourlyData_${sheetName}_${vardiya}`;
+        const existingData = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        const newData = [...existingData, ...hourlyData];
+        
+        localStorage.setItem(storageKey, JSON.stringify(newData));
+        
+        console.log('💾 LocalStorage kayıt başarılı:', newData.length, 'veri');
+        showNotification(`${sheetName} sayfasına ${hourlyData.length} saatlik veri yerel olarak kaydedildi (Backend bağlantısı yok)`, 'warning');
+        
+        // Input'ları temizle
+        document.querySelectorAll('.hourly-inputs input').forEach(input => {
+            input.value = '';
         });
         
-        if (response.ok) {
-            const result = await response.json();
-            console.log('Google Sheets kayıt sonucu:', result);
-            showNotification(`${sheetName} sayfasına ${hourlyData.length} saatlik veri başarıyla kaydedildi`, 'success');
-            
-            // Input'ları temizle
-            document.querySelectorAll('.hourly-inputs input').forEach(input => {
-                input.value = '';
-            });
-        } else {
-            const error = await response.text();
-            console.error('Google Sheets kayıt hatası:', error);
-            showNotification('Kayıt sırasında hata oluştu', 'error');
-        }
     } catch (error) {
-        console.error('Google Sheets bağlantı hatası:', error);
-        showNotification('Google Sheets bağlantısı kurulamadı', 'error');
+        console.error('❌ Kayıt hatası:', error);
+        showNotification('Kayıt sırasında hata oluştu: ' + error.message, 'error');
     }
 }
 
