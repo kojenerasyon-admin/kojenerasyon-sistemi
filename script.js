@@ -1181,52 +1181,31 @@ function showNotification(message, type = 'info', duration = 3000) {
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
+    notification.textContent = message;
     
-    // Style notification
-    Object.assign(notification.style, {
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        padding: '16px 24px',
-        borderRadius: '12px',
-        color: 'white',
-        fontWeight: '600',
-        fontSize: '16px',
-        zIndex: '10000',
-        opacity: '0',
-        transform: 'translateY(20px)',
-        transition: 'all 0.3s ease',
-        minWidth: '300px',
-        maxWidth: '400px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-    });
-    
-    // Set background color based on type
-    const colors = {
-        success: getComputedStyle(document.documentElement).getPropertyValue('--success'),
-        error: getComputedStyle(document.documentElement).getPropertyValue('--error'),
-        warning: getComputedStyle(document.documentElement).getPropertyValue('--warning'),
-        info: getComputedStyle(document.documentElement).getPropertyValue('--accent-primary')
-    };
-    
-    notification.style.backgroundColor = colors[type] || colors.info;
+    console.log('🔔 Notification element:', notification); // Debug
     
     document.body.appendChild(notification);
+    console.log('🔔 Notification appended to body'); // Debug
     
     // Animate in
     setTimeout(() => {
         notification.style.opacity = '1';
         notification.style.transform = 'translateY(0)';
+        console.log('🔔 Notification animated in'); // Debug
     }, 100);
     
-    // Remove after 3 seconds
+    // Remove after duration
     setTimeout(() => {
         notification.style.opacity = '0';
         notification.style.transform = 'translateY(20px)';
         setTimeout(() => {
-            document.body.removeChild(notification);
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+                console.log('🔔 Notification removed'); // Debug
+            }
         }, 300);
-    }, 3000);
+    }, duration);
 }
 
 // Error Handling

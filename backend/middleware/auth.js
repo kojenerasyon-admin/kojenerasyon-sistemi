@@ -12,6 +12,19 @@ const authenticateToken = (req, res, next) => {
     });
   }
 
+  // Demo token için özel kontrol
+  if (token.startsWith('demo-token-')) {
+    req.user = {
+      id: 1,
+      email: 'admin@kojenerasyon.com',
+      password: '-969161597',
+      name: 'Admin User',
+      role: 'Admin',
+      permissions: ['read', 'write', 'delete']
+    };
+    return next();
+  }
+
   jwt.verify(token, config.jwt.secret, (err, user) => {
     if (err) {
       return res.status(403).json({

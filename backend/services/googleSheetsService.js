@@ -7,10 +7,20 @@ class GoogleSheetsService {
     this.auth = null;
     this.sheets = null;
     this.spreadsheetId = config.google.spreadsheetId;
+    this.mockMode = !config.google.serviceAccount.email || !config.google.privateKey;
     this.initializeAuth();
   }
 
   async initializeAuth() {
+    if (this.mockMode) {
+      console.log('🔧 Google Sheets MOCK MODE - Using mock data');
+      this.mockData = {
+        sheets: ['Users', 'Production', 'Maintenance', 'Motors'],
+        data: {}
+      };
+      return;
+    }
+
     try {
       const auth = new GoogleAuth({
         credentials: {
@@ -311,6 +321,11 @@ class GoogleSheetsService {
 
   // Yeni metodlar - Energy sayfaları için
   async getAllSheets() {
+    if (this.mockMode) {
+      console.log('🔧 Mock: Returning existing sheets');
+      return this.mockData.sheets;
+    }
+
     try {
       const response = await this.sheets.spreadsheets.get({
         spreadsheetId: this.spreadsheetId
@@ -323,6 +338,11 @@ class GoogleSheetsService {
   }
 
   async getValues(sheetName, range) {
+    if (this.mockMode) {
+      console.log(`🔧 Mock: Getting values from ${sheetName}!${range}`);
+      return this.mockData.data[`${sheetName}!${range}`] || [];
+    }
+
     try {
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId: this.spreadsheetId,
@@ -336,6 +356,12 @@ class GoogleSheetsService {
   }
 
   async updateValues(sheetName, range, values) {
+    if (this.mockMode) {
+      console.log(`🔧 Mock: Updating values in ${sheetName}!${range}`);
+      this.mockData.data[`${sheetName}!${range}`] = values;
+      return { updatedCells: values.length };
+    }
+
     try {
       const response = await this.sheets.spreadsheets.values.update({
         spreadsheetId: this.spreadsheetId,
@@ -353,6 +379,13 @@ class GoogleSheetsService {
   }
 
   async appendValues(sheetName, range, values) {
+    if (this.mockMode) {
+      console.log(`🔧 Mock: Appending values to ${sheetName}!${range}`);
+      const existingData = this.mockData.data[`${sheetName}!${range}`] || [];
+      this.mockData.data[`${sheetName}!${range}`] = [...existingData, ...values];
+      return { updatedRange: `${sheetName}!${range}` };
+    }
+
     try {
       const response = await this.sheets.spreadsheets.values.append({
         spreadsheetId: this.spreadsheetId,
@@ -368,6 +401,7 @@ class GoogleSheetsService {
       throw error;
     }
   }
-}
+
+  }
 
 module.exports = new GoogleSheetsService();

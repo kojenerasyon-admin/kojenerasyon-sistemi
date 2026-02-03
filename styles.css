@@ -6,6 +6,7 @@
   --bg-tertiary: #f1f5f9;
   --surface: #ffffff;
   --surface-hover: #f8fafc;
+  --background: #ffffff;
   
   --text-primary: #1e293b;
   --text-secondary: #64748b;
@@ -47,6 +48,7 @@
   --bg-tertiary: #334155;
   --surface: #1e293b;
   --surface-hover: #334155;
+  --background: #0f172a;
   
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
@@ -1616,6 +1618,41 @@ footer {
   .stats-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+/* Notification Styles */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  z-index: 10000;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  min-width: 300px;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notification.notification-success {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.notification.notification-error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.notification.notification-warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.notification.notification-info {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
 }
 
 /* Responsive Design */

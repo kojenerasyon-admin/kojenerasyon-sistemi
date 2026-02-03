@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const googleSheetsService = require('../services/googleSheetsService');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken, checkPermissions } = require('../middleware/auth');
 
 // Saatlik enerji verilerini Google Sheets'e kaydet
-router.post('/hourly', authenticateToken, async (req, res) => {
+router.post('/hourly', authenticateToken, checkPermissions('write'), async (req, res) => {
     try {
         const { sheetName, vardiya, data } = req.body;
         
@@ -93,16 +93,22 @@ async function getExistingRowCount(sheetName) {
 }
 
 // Aylık sayfaları oluştur (OCAK - ARALIK)
-router.post('/create-monthly-sheets', authenticateToken, async (req, res) => {
+router.post('/create-monthly-sheets', authenticateToken, checkPermissions('write'), async (req, res) => {
     try {
+        console.log('🔧 Aylık sayfa oluşturma isteği geldi:', req.body); // Debug
         const { year } = req.body;
         const currentYear = year || new Date().getFullYear();
+        
+        console.log('🔧 Yıl:', currentYear); // Debug
         
         const monthNames = ['OCAK', 'ŞUBAT', 'MART', 'NİSAN', 'MAYIS', 'HAZİRAN', 
                            'TEMMUZ', 'AĞUSTOS', 'EYLÜL', 'EKİM', 'KASIM', 'ARALIK'];
         
         // Mevcut sayfaları al
+        console.log('🔧 Mevcut sayfalar alınıyor...'); // Debug
         const existingSheets = await googleSheetsService.getAllSheets();
+        console.log('🔧 Mevcut sayfalar:', existingSheets); // Debug
+        
         const sheetsToCreate = [];
         
         // Oluşturulacak sayfaları belirle
@@ -113,7 +119,10 @@ router.post('/create-monthly-sheets', authenticateToken, async (req, res) => {
             }
         });
         
+        console.log('🔧 Oluşturulacak sayfalar:', sheetsToCreate); // Debug
+        
         if (sheetsToCreate.length === 0) {
+            console.log('🔧 Tüm sayfalar zaten mevcut'); // Debug
             return res.json({
                 success: true,
                 message: `${currentYear} yılı için tüm aylık sayfalar zaten mevcut`,
