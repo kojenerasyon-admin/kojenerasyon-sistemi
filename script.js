@@ -191,6 +191,10 @@ async function subscribeToPushNotifications() {
 
         console.log('Push notification subscription:', subscription);
         
+        // GitHub Pages demo mode - backend disabled
+        console.log('📱 Demo mode: Push notification disabled');
+        return;
+
         // Send subscription to backend
         await fetch(`${API_BASE_URL}/notifications/subscribe`, {
             method: 'POST',
@@ -694,9 +698,13 @@ function showPage(pageId) {
 // Energy Page Functions
 function initializeEnergyPage() {
     // Set default dates
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('hourlyDate').value = today;
-    document.getElementById('dailyDate').value = today;
+    const today = new Date();
+    
+    // GitHub Pages demo mode - use mock data
+    console.log('📱 Demo mode: Using mock energy data');
+    
+    document.getElementById('hourlyDate').value = today.toISOString().split('T')[0];
+    document.getElementById('dailyDate').value = today.toISOString().split('T')[0];
     
     // Initialize tab switching
     initializeEnergyTabs();
@@ -749,6 +757,11 @@ async function createMonthlySheets() {
     try {
         const year = prompt('Yıl girin (örn: 2024):', new Date().getFullYear());
         if (!year) return;
+        
+        // GitHub Pages demo mode - backend disabled
+        console.log('📱 Demo mode: Monthly sheets creation disabled');
+        showNotification('Demo modu: Aylık sayfalar oluşturma devre dışı', 'info');
+        return;
         
         const token = localStorage.getItem('authToken');
         console.log('🔑 Token kontrolü:', token); // Debug
@@ -831,6 +844,11 @@ function saveHourlyData() {
     console.log('📊 Kaydedilen saatler:', hourlyData.length, 'saat');
     console.log('📊 Boş saatler:', emptyInputs.length, 'saat');
     
+    // GitHub Pages demo mode - backend disabled
+    console.log('📱 Demo mode: Hourly data saving disabled');
+    showNotification('Demo modu: Saatlik veri kaydetme devre dışı', 'info');
+    return;
+    
     // Google Sheets'e kaydet
     saveHourlyDataToSheets(hourlyData, vardiya);
 }
@@ -853,71 +871,14 @@ async function saveHourlyDataToSheets(hourlyData, vardiya) {
         
         console.log('🔍 Kaydedilecek veriler:', { sheetName, vardiya, data: hourlyData });
         
-        // ÖNCELİKLE LocalStorage'a KAYDET (veri kaybını önlemek için)
-        const storageKey = `hourlyData_${sheetName}_${vardiya}`;
-        const existingData = JSON.parse(localStorage.getItem(storageKey) || '[]');
-        
-        // Frontend duplicate kontrolü - tarih ve saat bazında
-        const duplicates = [];
-        const validData = [];
-        
-        hourlyData.forEach(newItem => {
-            const isDuplicate = existingData.some(existingItem => 
-                existingItem.date === newItem.date && 
-                existingItem.time === newItem.time &&
-                existingItem.vardiya === newItem.vardiya
-            );
-            
-            if (isDuplicate) {
-                duplicates.push(`${newItem.date} ${newItem.time} (${newItem.vardiya}. vardiya)`);
-            } else {
-                validData.push(newItem);
-            }
-        });
-        
-        // Eğer duplicate varsa uyarı göster
-        if (duplicates.length > 0) {
-            const choice = await showDuplicateDialog(duplicates);
-            
-            if (choice === 'cancel') {
-                showNotification('İşlem iptal edildi', 'info');
-                return;
-            } else if (choice === 'new') {
-                // Sadece yeni verileri kaydet
-                if (validData.length === 0) {
-                    showNotification('Tüm veriler zaten kayıtlı', 'warning');
-                    return;
-                }
-                console.log('📝 Sadece yeni veriler kaydedilecek:', validData.length);
-                showNotification(`${validData.length} yeni veri kaydedilecek, ${duplicates.length} veri atlandı`, 'info');
-            } else if (choice === 'override') {
-                // Tüm verileri kaydet (duplicate'ları da)
-                validData.push(...hourlyData.filter(item => 
-                    duplicates.some(dup => dup.includes(`${item.date} ${item.time}`))
-                ));
-                console.log('📝 Tüm veriler üzerine yazılacak');
-                showNotification(`${hourlyData.length} veri üzerine yazılacak`, 'info');
-            }
-        }
-        
-        // Kaydedilecek son veri seti
-        const dataToSave = validData.length > 0 ? validData : hourlyData;
-        
-        // ÖNCELİKLE LocalStorage'a KAYDET (veri kaybını önleme)
-        const pendingStorageKey = `pending_${storageKey}`;
-        const pendingData = {
-            data: dataToSave,
-            timestamp: new Date().toISOString(),
-            sheetName: sheetName,
-            vardiya: vardiya
-        };
-        localStorage.setItem(pendingStorageKey, JSON.stringify(pendingData));
-        console.log('💾 Veriler öncelikle LocalStorage\'a kaydedildi (bekleme modu)');
-        
         // Backend'e veri gönder (duplicate kontrolü Apps Script'te)
         let backendSuccess = false;
         try {
             showNotification('Veriler Google Sheets\'e gönderiliyor...', 'info');
+            
+            // GitHub Pages demo mode - backend disabled
+            console.log('� Demo mode: Backend API disabled');
+            throw new Error('Demo modu: Backend bağlantısı devre dışı');
             
             const response = await fetch(`${API_BASE_URL}/energy/hourly`, {
                 method: 'POST',
@@ -928,7 +889,7 @@ async function saveHourlyDataToSheets(hourlyData, vardiya) {
                 body: JSON.stringify({
                     sheetName: sheetName,
                     vardiya: vardiya,
-                    data: dataToSave
+                    data: hourlyData
                 })
             });
             
@@ -1010,6 +971,10 @@ function checkPendingData() {
                 const pendingData = JSON.parse(localStorage.getItem(pendingKey));
                 console.log('� Bekleyen veri gönderiliyor:', pendingData.sheetName);
                 
+                // GitHub Pages demo mode - backend disabled
+                console.log('📱 Demo mode: Backend API disabled');
+                throw new Error('Demo modu: Backend bağlantısı devre dışı');
+                
                 // Burada backend'e tekrar gönderme mantığı eklenebilir
                 // Şimdilik sadece bildirim göster
                 
@@ -1073,6 +1038,10 @@ async function loadGoogleSheetsData() {
     try {
         const token = localStorage.getItem('authToken');
         if (!token) return false;
+        
+        // GitHub Pages demo mode - use mock data
+        console.log('📱 Demo mode: Using mock production data');
+        return mockProductionData;
         
         const response = await fetch(`${API_BASE_URL}/production`, {
             headers: {
