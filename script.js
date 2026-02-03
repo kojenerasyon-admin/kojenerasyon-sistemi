@@ -13,7 +13,7 @@ const AppState = {
 };
 
 // Google Sheets Configuration - Backend API
-const API_BASE_URL = '/api'; // Proxy üzerinden backend'e git
+const API_BASE_URL = '/.netlify/functions'; // Netlify functions
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', function() {
