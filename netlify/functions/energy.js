@@ -1,28 +1,3 @@
-const { GoogleAuth } = require('google-auth-library');
-const { google } = require('googleapis');
-
-// Google Sheets API Configuration
-const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || 'your-spreadsheet-id';
-
-async function getGoogleSheetsClient() {
-    try {
-        const auth = new GoogleAuth({
-            credentials: {
-                client_email: process.env.GOOGLE_CLIENT_EMAIL,
-                private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-                project_id: process.env.GOOGLE_PROJECT_ID
-            },
-            scopes: ['https://www.googleapis.com/auth/spreadsheets']
-        });
-
-        const authClient = await auth.getClient();
-        return google.sheets({ version: 'v4', auth: authClient });
-    } catch (error) {
-        console.error('Google Sheets API initialization error:', error);
-        throw error;
-    }
-}
-
 exports.handler = async (event, context) => {
     try {
         console.log('Function started');
@@ -33,49 +8,44 @@ exports.handler = async (event, context) => {
             const data = JSON.parse(body);
             console.log('Energy data received:', data);
             
-            // Google Sheets'e kaydet
-            const sheets = await getGoogleSheetsClient();
+            // Firebase Database'e kaydet
+            const firebaseUrl = process.env.FIREBASE_DATABASE_URL;
+            if (!firebaseUrl) {
+                throw new Error('Firebase database URL not configured');
+            }
             
-            // Ay ve yılı al
-            const date = new Date(data.data[0].date);
-            const monthNames = ['OCAK', 'ŞUBAT', 'MART', 'NİSAN', 'MAYIS', 'HAZİRAN', 
-                               'TEMMUZ', 'AĞUSTOS', 'EYLÜL', 'EKİM', 'KASIM', 'ARALIK'];
-            const monthName = monthNames[date.getMonth()];
-            const year = date.getFullYear();
-            const sheetName = `${monthName} ${year}`;
+            // Veriyi Firebase formatına çevir
+            const firebaseData = {
+                sheetName: data.sheetName,
+                vardiya: data.vardiya,
+                timestamp: new Date().toISOString(),
+                data: data.data
+            };
             
-            // Verileri hazırla
-            const values = data.data.map(item => [
-                item.date,
-                item.time,
-                item.vardiya,
-                item.aktif || '',
-                item.reaktif || '',
-                item.aydemAktif || '',
-                item.aydemReaktif || ''
-            ]);
-            
-            // Google Sheets'e yaz
-            console.log('Writing to Google Sheets...');
-            const response = await sheets.spreadsheets.values.append({
-                spreadsheetId: SPREADSHEET_ID,
-                range: `${sheetName}!A:G`,
-                valueInputOption: 'USER_ENTERED',
-                requestBody: {
-                    values: values
-                }
+            // Firebase'e gönder
+            const response = await fetch(`${firebaseUrl}energy/${Date.now()}.json`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(firebaseData)
             });
             
-            console.log('Google Sheets response:', response.data);
+            if (!response.ok) {
+                throw new Error(`Firebase error: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('Firebase response:', result);
             
             return {
                 statusCode: 200,
                 body: JSON.stringify({
                     success: true,
-                    message: 'Veriler Google Sheets\'e başarıyla kaydedildi',
-                    spreadsheetId: SPREADSHEET_ID,
-                    sheetName: sheetName,
-                    rowsAdded: values.length
+                    message: 'Veriler Firebase\'e başarıyla kaydedildi',
+                    firebaseId: result.name,
+                    sheetName: data.sheetName,
+                    rowsAdded: data.data.length
                 })
             };
         }
@@ -90,7 +60,7 @@ exports.handler = async (event, context) => {
             statusCode: 500,
             body: JSON.stringify({ 
                 error: error.message,
-                details: 'Google Sheets API hatası'
+                details: 'Firebase Database hatası'
             })
         };
     }
