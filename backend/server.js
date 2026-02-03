@@ -25,7 +25,7 @@ const app = express();
 
 // CORS configuration - Allow frontend access
 app.use(cors({
-  origin: ['http://localhost:8088', 'http://127.0.0.1:8088', 'http://localhost:8087', 'http://127.0.0.1:8087', 'http://localhost:8086', 'http://127.0.0.1:8086', 'http://localhost:8084', 'http://127.0.0.1:8084', 'http://localhost:8080', 'http://127.0.0.1:8080', 'http://localhost:3000', 'http://127.0.0.1:3000', 'file://'],
+  origin: ['http://localhost:8113', 'http://127.0.0.1:8113', 'http://localhost:8112', 'http://127.0.0.1:8112', 'http://localhost:8111', 'http://127.0.0.1:8111', 'http://localhost:8110', 'http://127.0.0.1:8110', 'http://localhost:8081', 'http://127.0.0.1:8081', 'http://localhost:8080', 'http://127.0.0.1:8080', 'http://localhost:8105', 'http://127.0.0.1:8105', 'http://localhost:8104', 'http://127.0.0.1:8104', 'http://localhost:8103', 'http://127.0.0.1:8103', 'http://localhost:8102', 'http://127.0.0.1:8102', 'http://localhost:8101', 'http://127.0.0.1:8101', 'http://localhost:8100', 'http://127.0.0.1:8100', 'http://localhost:8099', 'http://127.0.0.1:8099', 'http://localhost:8098', 'http://127.0.0.1:8098', 'http://localhost:8097', 'http://127.0.0.1:8097', 'http://localhost:8096', 'http://127.0.0.1:8096', 'http://localhost:8095', 'http://127.0.0.1:8095', 'http://localhost:8094', 'http://127.0.0.1:8094', 'http://localhost:8093', 'http://127.0.0.1:8093', 'http://localhost:8092', 'http://127.0.0.1:8092', 'http://localhost:8091', 'http://127.0.0.1:8091', 'http://localhost:8090', 'http://127.0.0.1:8090', 'http://localhost:8089', 'http://127.0.0.1:8089', 'http://localhost:8088', 'http://127.0.0.1:8088', 'http://localhost:8087', 'http://127.0.0.1:8087', 'http://localhost:8086', 'http://127.0.0.1:8086', 'http://localhost:8084', 'http://127.0.0.1:8084', 'http://localhost:3000', 'http://127.0.0.1:3000', 'file://'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -48,8 +48,6 @@ app.use(helmet({
   },
   crossOriginEmbedderPolicy: false
 }));
-
-app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));

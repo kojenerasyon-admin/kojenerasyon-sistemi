@@ -6,12 +6,19 @@ class GoogleSheetsService {
   constructor() {
     this.auth = null;
     this.sheets = null;
-    this.spreadsheetId = config.google.spreadsheetId;
-    this.mockMode = !config.google.serviceAccount.email || !config.google.privateKey;
+    this.spreadsheetId = config.google.spreadsheetId || 'demo-spreadsheet-id';
+    // Mock mode'u kapat - gerçek API'yi dene
+    this.mockMode = false;
     this.initializeAuth();
   }
 
   async initializeAuth() {
+    // Demo credentials for testing - replace with real credentials
+    const demoCredentials = {
+      client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || 'demo-service-account@demo-project.iam.gserviceaccount.com',
+      private_key: process.env.GOOGLE_PRIVATE_KEY || '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC5V7V8...\n-----END PRIVATE KEY-----\n'
+    };
+
     if (this.mockMode) {
       console.log('🔧 Google Sheets MOCK MODE - Using mock data');
       this.mockData = {
@@ -24,8 +31,8 @@ class GoogleSheetsService {
     try {
       const auth = new GoogleAuth({
         credentials: {
-          client_email: config.google.serviceAccount.email,
-          private_key: config.google.serviceAccount.privateKey
+          client_email: config.google.serviceAccount.email || demoCredentials.client_email,
+          private_key: config.google.serviceAccount.privateKey || demoCredentials.private_key
         },
         scopes: config.google.scopes
       });
@@ -40,6 +47,15 @@ class GoogleSheetsService {
   }
 
   async ensureSheetExists(sheetName) {
+    if (this.mockMode) {
+      console.log(`🔧 Mock: Ensuring sheet ${sheetName} exists`);
+      if (!this.mockData.sheets.includes(sheetName)) {
+        this.mockData.sheets.push(sheetName);
+        console.log(`🔧 Mock: Added sheet ${sheetName}`);
+      }
+      return;
+    }
+
     try {
       const response = await this.sheets.spreadsheets.get({
         spreadsheetId: this.spreadsheetId
@@ -59,6 +75,16 @@ class GoogleSheetsService {
   }
 
   async createSheet(sheetName) {
+    if (this.mockMode) {
+      console.log(`🔧 Mock: Creating sheet ${sheetName}`);
+      if (!this.mockData.sheets.includes(sheetName)) {
+        this.mockData.sheets.push(sheetName);
+      }
+      await this.addHeaders(sheetName);
+      console.log(`🔧 Mock: Sheet ${sheetName} created successfully`);
+      return;
+    }
+
     try {
       const requests = [
         {
@@ -90,15 +116,34 @@ class GoogleSheetsService {
   async addHeaders(sheetName) {
     const headers = this.getSheetHeaders(sheetName);
     
+    if (this.mockMode) {
+      console.log(`🔧 Mock: Adding headers to ${sheetName}:`, headers);
+      // Mock mode'da da range formatını düzelt
+      const quotedSheetName = sheetName.includes(' ') ? `'${sheetName}'` : sheetName;
+      const range = `${quotedSheetName}!A1:${String.fromCharCode(65 + headers.length - 1)}1`;
+      this.mockData.data[range] = [headers];
+      return;
+    }
+
     try {
+      // Google Sheets API range formatını düzelt
+      const endColumn = String.fromCharCode(65 + headers.length - 1);
+      // Sheet adında boşluk varsa tırnak içine al
+      const quotedSheetName = sheetName.includes(' ') ? `'${sheetName}'` : sheetName;
+      const range = `${quotedSheetName}!A1:${endColumn}1`;
+      
+      console.log(`🔧 Adding headers to range: ${range}`);
+      
       await this.sheets.spreadsheets.values.update({
         spreadsheetId: this.spreadsheetId,
-        range: `${sheetName}!A1:${String.fromCharCode(65 + headers.length - 1)}1`,
+        range: range,
         valueInputOption: 'USER_ENTERED',
         requestBody: {
           values: [headers]
         }
       });
+      
+      console.log(`Headers added to ${sheetName}`);
     } catch (error) {
       console.error(`Error adding headers to ${sheetName}:`, error);
       throw error;
@@ -322,7 +367,7 @@ class GoogleSheetsService {
   // Yeni metodlar - Energy sayfaları için
   async getAllSheets() {
     if (this.mockMode) {
-      console.log('🔧 Mock: Returning existing sheets');
+      console.log('🔧 Mock: Returning existing sheets:', this.mockData.sheets);
       return this.mockData.sheets;
     }
 
