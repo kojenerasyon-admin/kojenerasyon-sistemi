@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
     initializeEventListeners();
     checkAuthentication();
-    // PWA disabled temporarily - Service Worker not found
-    // initializePWA();
+    // GitHub Pages demo mode - Service Worker disabled
+    console.log('📱 Demo mode: Service Worker disabled');
     // Removed Google Sheets initialization - using Backend API
 });
 
